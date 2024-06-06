@@ -16,4 +16,7 @@ public class Servidor {
     public int tiempoOcupacion;
     public int tiempoPermanenciaEquipo;
 
+
+
+
 }

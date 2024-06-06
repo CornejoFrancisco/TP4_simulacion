@@ -1,5 +1,6 @@
 package com.demo.entities;
 
+import com.demo.entities.Estados.Evento;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
