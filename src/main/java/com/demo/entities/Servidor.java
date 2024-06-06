@@ -13,8 +13,8 @@ public class Servidor {
     public EstadoServidor estado;
     public int horaInicioOcupacion;
     public int horaFinOcupacion;
-    public int tiempoOcupacion;
-    public int tiempoPermanenciaEquipo;
+    public int tiempoOcupacionAcum;
+    public int tiempoPermanenciaEquipoAcum;
 
 
 

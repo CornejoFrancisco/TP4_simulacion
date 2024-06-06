@@ -20,8 +20,8 @@ public class Llegada {
     public Trabajo trabajo;
 
 
-    public void calcularEntreLlegada(Integer rndLlegada, double reloj) {
-        double tiempo_entre_llegada = 0.5 + rndLlegada * (1.5 - 0.5);
+    public void calcularEntreLlegada(Integer rndLlegada, double reloj, double A, double B) {
+        double tiempo_entre_llegada = A + rndLlegada * (B - A);
         this.tiempoHoraProximaLlegada = tiempo_entre_llegada + reloj;
     }
 }
