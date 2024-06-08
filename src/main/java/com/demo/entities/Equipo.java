@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 public class Equipo {
     public int id_equipo;
     public EstadoEquipo equipo_estado;
-    public int hora_llegada;
+    public double hora_llegada;
 
-    public int hora_atencion;
-    public int hora_fin_atencion;
-    public int hora_salida;
+    public double hora_atencion;
+    public double hora_fin_atencion;
+    public double hora_salida;
 }

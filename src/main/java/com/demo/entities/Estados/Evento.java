@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 
 @AllArgsConstructor
-@NoArgsConstructor
 
 public enum Evento {
     Inicio,

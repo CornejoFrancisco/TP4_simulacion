@@ -11,12 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 public class Servidor {
     public EstadoServidor estado;
-    public int horaInicioOcupacion;
-    public int horaFinOcupacion;
-    public int tiempoOcupacionAcum;
-    public int tiempoPermanenciaEquipoAcum;
+    public double horaInicioOcupacion;
+    public double horaFinOcupacion;
+    public double tiempoOcupacionAcum;
+    public double tiempoPermanenciaEquipoAcum;
 
+    public void setHoraFinOcupacion(double horaFinOcupacion) {
+        this.horaFinOcupacion = horaFinOcupacion;
+        this.tiempoOcupacionAcum = this.tiempoOcupacionAcum + this.horaFinOcupacion - this.horaInicioOcupacion;
+    }
 
-
-
+    public void setTiempoPermanenciaEquipoAcum(double tiempoPermanenciaEquipoAcum) {
+        this.tiempoPermanenciaEquipoAcum = this.tiempoPermanenciaEquipoAcum + tiempoPermanenciaEquipoAcum;
+    }
 }

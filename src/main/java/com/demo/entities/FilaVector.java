@@ -14,7 +14,7 @@ import java.util.List;
 
 public class FilaVector {
     public Evento evento;
-    public int reloj;
+    public double reloj;
 
     public Llegada llegada;
     public ColaVector colaVector;

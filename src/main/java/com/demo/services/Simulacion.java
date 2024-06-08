@@ -17,6 +17,4 @@ public class Simulacion {
 
     private FilaVector filaVectorAnterior;
     private FilaVector filaVectorActual;
-
-
 }

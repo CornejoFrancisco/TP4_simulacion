@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Data
 @AllArgsConstructor
@@ -14,27 +15,55 @@ import java.util.List;
 
 
 public class FinTrabajo {
-    public int rndFinTrabajo;
+    public double rndFinTrabajo;
 
     public double mediaTiempoAtencion;
-    public int tiempoAtencion;
+    public double tiempoAtencion;
 
     public double horafinTrabajo;
 
+    public void calcularMediaTiempo(double[] lista_probabilidad, double[] tiempo_trabajo, double reloj) {
+        Random random = new Random();
+        double ran = random.nextDouble();
 
+        double[][] intervalos_probabilidad = intervalos(lista_probabilidad);
+        this.rndFinTrabajo = ran;
 
-    public void calcularMediaTiempo(double rndLlegada, ArrayList<Double> lista_probabilidad, List<Double> tiempo_trabajo, double reloj) {
+        for (int i = 0; i < intervalos_probabilidad.length; i++) {
+            double linf = intervalos_probabilidad[i][0];
+            double lsup = intervalos_probabilidad[i][1];
 
-        double media_tiempo = 0;
-        for (int i = 0; i < lista_probabilidad.size(); i++) {
-            if (rndLlegada < lista_probabilidad.get(i)) {
-
-                media_tiempo = tiempo_trabajo.get(i);
-                break;
+            if (ran >= linf && ran < lsup) {
+                this.mediaTiempoAtencion = tiempo_trabajo[i];
+                this.tiempoAtencion = (this.mediaTiempoAtencion - 0.083) + ran * ((this.mediaTiempoAtencion + 0.083) - (this.mediaTiempoAtencion - 0.083));
+                this.horafinTrabajo = reloj + tiempoAtencion;
+                return;
             }
         }
-        this.mediaTiempoAtencion = (media_tiempo- 0.083)+rndLlegada*((media_tiempo + 0.083) - (media_tiempo - 0.083));
-        this.horafinTrabajo = reloj + this.mediaTiempoAtencion;
+
+        // Si no se encuentra ningún intervalo adecuado, se asigna un valor por defecto
+        // Esto puede cambiar dependiendo de tus necesidades
+        this.mediaTiempoAtencion = 0; // Asigna un valor por defecto
+        this.tiempoAtencion = 0; // Asigna un valor por defecto
     }
 
+    public double[][] intervalos(double[] valores_probabilidad) {
+        int n = valores_probabilidad.length;
+        double[][] intervalo_proba = new double[n][2];
+        double primero = 0.0;
+
+        for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                intervalo_proba[i][0] = primero;
+                intervalo_proba[i][1] = 1.0;
+                return intervalo_proba;
+            }
+
+            double ultimo = primero + valores_probabilidad[i];
+            intervalo_proba[i][0] = primero;
+            intervalo_proba[i][1] = ultimo;
+            primero = ultimo;
+        }
+        return intervalo_proba;
+    }
 }
