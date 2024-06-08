@@ -1,7 +1,7 @@
 package com.demo.controllers;
 
+import com.demo.entities.Dto_request;
 import com.demo.entities.FilaVector;
-import com.demo.entities.SimulacionRequest;
 import com.demo.services.SimulacionPractica;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +14,13 @@ import java.util.List;
 public class Controller {
 
     @PostMapping("/simular")
-    public ResponseEntity<List<FilaVector>> simular(@RequestBody(required = false) SimulacionRequest simulacionRequest) {
-        System.out.println(simulacionRequest);
+    public ResponseEntity<List<FilaVector>> simular(@RequestBody(required = false) Dto_request simulacionRequest) {
 
-        double probTA = simulacionRequest.getProbTA();
-        double probTB = simulacionRequest.getProbTB();
-        double probTC = simulacionRequest.getProbTC();
-        double probTD = simulacionRequest.getProbTD();
+
+        double probTA = simulacionRequest.getProbTablaA();
+        double probTB = simulacionRequest.getProbTablaB();
+        double probTC = simulacionRequest.getProbTablaC();
+        double probTD = simulacionRequest.getProbTablaD();
         double timeTA = simulacionRequest.getTimeTA();
         double timeTB = simulacionRequest.getTimeTB();
         double timeTC = simulacionRequest.getTimeTC();

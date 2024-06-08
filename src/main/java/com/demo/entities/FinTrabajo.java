@@ -22,9 +22,16 @@ public class FinTrabajo {
 
     public double horafinTrabajo;
 
-    public void calcularMediaTiempo(double[] lista_probabilidad, double[] tiempo_trabajo, double reloj) {
+    private double rndFinTrabajoCalculo() {
         Random random = new Random();
-        double ran = random.nextDouble();
+        double numero_random1 = random.nextDouble();
+        double numero_random = Math.round(numero_random1 * 100.0) / 100.0;
+        return numero_random;
+    }
+
+    public void calcularMediaTiempo(double[] lista_probabilidad, double[] tiempo_trabajo, double reloj) {
+
+        double ran = rndFinTrabajoCalculo();
 
         double[][] intervalos_probabilidad = intervalos(lista_probabilidad);
         this.rndFinTrabajo = ran;
@@ -47,7 +54,7 @@ public class FinTrabajo {
         this.tiempoAtencion = 0; // Asigna un valor por defecto
     }
 
-    public double[][] intervalos(double[] valores_probabilidad) {
+    private double[][] intervalos(double[] valores_probabilidad) {
         int n = valores_probabilidad.length;
         double[][] intervalo_proba = new double[n][2];
         double primero = 0.0;

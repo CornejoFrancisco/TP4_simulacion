@@ -22,9 +22,15 @@ public class Llegada {
     public double rndTipoTrabajo;
     public Trabajo trabajo;
 
-    public void calcularTiempoEntreLlegada(double reloj) {
+
+    private double rndLlegada() {
         Random random = new Random();
-        double ran = random.nextDouble();
+        double numero_random1 = random.nextDouble();
+        double numero_random = Math.round(numero_random1 * 100.0) / 100.0;
+        return numero_random;
+    }
+    public void calcularTiempoEntreLlegada(double reloj) {
+        double ran = rndLlegada();
         double tiempo_entre_llegada = 0.5 + ran * (1.5 - 0.5);
         this.rndLlegada = ran;
         this.tiempoEntreLlegada = tiempo_entre_llegada;
