@@ -16,6 +16,8 @@ public class ColaVector {
     public int trabajoCSegundoPlano;
     public int lugaresLibres;
 
+
+
     public void sumarColaComun() {
         this.colaComun++;
         this.lugaresLibres--;
