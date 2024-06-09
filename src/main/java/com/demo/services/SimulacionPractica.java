@@ -42,9 +42,9 @@ public class SimulacionPractica extends Simulacion {
         int lugares_libresColaComun = 9;
 
         double hora_proximaLlegada = llegada.getTiempoHoraProximaLlegada();
-        double hora_proximoFinTrabajo = 0;
-        double hora_cambio_trabajo_C = 0;
-        double hora_reanudacion_trabajo_C = 0;
+        double hora_proximoFinTrabajo = 1000;
+        double hora_cambio_trabajo_C = 1000;
+        double hora_reanudacion_trabajo_C = 1000;
 
 
 
@@ -78,7 +78,7 @@ public class SimulacionPractica extends Simulacion {
             if (contador_equipos == 0) {
                 reloj = reloj + llegada.getTiempoEntreLlegada();
                 FilaVector filaVectorAnterior = filaVectors.get(filaVectors.size() - 1);
-
+                hora_proximaLlegada = reloj + llegada.getTiempoEntreLlegada();
                 Llegada llegadaDipositivo = new Llegada();
                 llegada.calcularTiempoEntreLlegada(reloj);
                 llegada.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
@@ -116,6 +116,7 @@ public class SimulacionPractica extends Simulacion {
                     Llegada llegada1 = new Llegada();
                     llegada1.calcularTiempoEntreLlegada(reloj);
                     llegada1.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
+                    hora_proximaLlegada = reloj + llegada1.getTiempoEntreLlegada();
 
 
 
@@ -178,6 +179,7 @@ public class SimulacionPractica extends Simulacion {
                 }
 
                 if (proximoFinTrabajo) {
+                    hora_proximoFinTrabajo = finTrabajo.getHorafinTrabajo();
                     if(colaTrabajoC.size() != 0){
                         EquipoCola equipoCola = colaTrabajoC.get(0);
                         Equipo equipo = new Equipo();
@@ -227,6 +229,7 @@ public class SimulacionPractica extends Simulacion {
 
 
             if (hora_proximaLlegada < hora_proximoFinTrabajo && hora_proximaLlegada < hora_cambio_trabajo_C && hora_proximaLlegada < hora_reanudacion_trabajo_C) {
+                System.out.println("Llegada");
                 reloj = hora_proximaLlegada;
                 contador_equipos = contador_equipos + 1;
                 proxima_llegada = true;
@@ -238,6 +241,7 @@ public class SimulacionPractica extends Simulacion {
             ;
 
             if (hora_proximoFinTrabajo < hora_proximaLlegada && hora_proximoFinTrabajo < hora_cambio_trabajo_C && hora_proximoFinTrabajo < hora_reanudacion_trabajo_C) {
+                System.out.println("Fin Trabajo");
                 reloj = hora_proximoFinTrabajo;
                 proximoFinTrabajo = true;
                 proxima_llegada = false;
@@ -248,6 +252,8 @@ public class SimulacionPractica extends Simulacion {
             ;
 
             if (hora_cambio_trabajo_C < hora_proximaLlegada && hora_cambio_trabajo_C < hora_cambio_trabajo_C && hora_reanudacion_trabajo_C < hora_proximoFinTrabajo) {
+                System.out.println("Cambio Trabajo"
+                );
                 reloj = hora_cambio_trabajo_C;
                 proximoCambio_trabajo = true;
                 proximoFinTrabajo = false;
@@ -257,17 +263,16 @@ public class SimulacionPractica extends Simulacion {
             ;
 
             if (hora_reanudacion_trabajo_C < hora_proximaLlegada && hora_reanudacion_trabajo_C < hora_proximoFinTrabajo && hora_reanudacion_trabajo_C < hora_cambio_trabajo_C) {
+                System.out.println("Reanudacion Trabajo");
                 reloj = hora_reanudacion_trabajo_C;
                 proximoReanudacion_trabajo = true;
                 proximoCambio_trabajo = false;
                 proximoFinTrabajo = false;
                 proxima_llegada = false;
-            }
-            ;
+            };
 
 
         }
-
 
         return filaVectors;
 
