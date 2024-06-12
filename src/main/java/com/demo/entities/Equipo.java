@@ -1,10 +1,13 @@
 package com.demo.entities;
 
 import com.demo.entities.Estados.EstadoEquipo;
+import com.demo.entities.Estados.Evento;
 import com.demo.entities.Estados.Trabajo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 
 
 @Data

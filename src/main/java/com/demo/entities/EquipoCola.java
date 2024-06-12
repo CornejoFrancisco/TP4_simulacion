@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EquipoCola {
     public Trabajo trabajo;
-    public double hora_atencion;
+    public double hora_finatencion;
     public double horaCambioTrabjo;
     public double horaReanudacionTrabajo;
 }
