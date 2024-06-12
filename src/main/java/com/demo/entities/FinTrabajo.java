@@ -73,4 +73,6 @@ public class FinTrabajo {
         }
         return intervalo_proba;
     }
+
+
 }

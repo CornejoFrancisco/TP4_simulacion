@@ -22,18 +22,31 @@ public class Llegada {
     public double rndTipoTrabajo;
     public Trabajo trabajo;
 
-    public void calcularTiempoEntreLlegada(double reloj) {
+
+    private double rndLlegada() {
         Random random = new Random();
-        double ran = random.nextDouble();
+        double numero_random1 = random.nextDouble();
+        double numero_random = Math.round(numero_random1 * 100.0) / 100.0;
+        return numero_random;
+    }
+    public void calcularTiempoEntreLlegada(double reloj) {
+        double ran = rndLlegada();
+        ran = Math.round(ran * 100.0) / 100.0;
         double tiempo_entre_llegada = 0.5 + ran * (1.5 - 0.5);
+        tiempo_entre_llegada = Math.round(tiempo_entre_llegada * 100.0) / 100.0;
+
         this.rndLlegada = ran;
         this.tiempoEntreLlegada = tiempo_entre_llegada;
         this.tiempoHoraProximaLlegada = tiempo_entre_llegada + reloj;
     }
 
     public void calcularTipoTrabajo(Trabajo[] trabajos, double[] valores_probabilidad) {
+
+
+
         Random random = new Random();
         double ran = random.nextDouble();
+        ran = Math.round(ran * 100.0) / 100.0;
         double[][] intervalos_probabilidad = intervalos(valores_probabilidad);
         this.rndTipoTrabajo = ran;
 
@@ -43,7 +56,6 @@ public class Llegada {
 
             if (ran >= linf && ran < lsup) {
                 this.trabajo = trabajos[i];
-                System.out.println("Trabajos:" + trabajos[i]);
                 return;
             }
         }

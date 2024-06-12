@@ -17,10 +17,10 @@ public class Controller {
     public ResponseEntity<List<FilaVector>> simular(@RequestBody(required = false) Dto_request simulacionRequest) {
 
 
-        double probTA = simulacionRequest.getProbTablaA();
-        double probTB = simulacionRequest.getProbTablaB();
-        double probTC = simulacionRequest.getProbTablaC();
-        double probTD = simulacionRequest.getProbTablaD();
+        double probTA = simulacionRequest.getProbTA();
+        double probTB = simulacionRequest.getProbTB();
+        double probTC = simulacionRequest.getProbTC();
+        double probTD = simulacionRequest.getProbTD();
         double timeTA = simulacionRequest.getTimeTA();
         double timeTB = simulacionRequest.getTimeTB();
         double timeTC = simulacionRequest.getTimeTC();
@@ -34,6 +34,8 @@ public class Controller {
         int cantSimIterations = simulacionRequest.getCantSimIterations();
 
         double[] probabilidadesOcurrencia = new double[4];
+
+
         probabilidadesOcurrencia[0] = probTA;
         probabilidadesOcurrencia[1] = probTB;
         probabilidadesOcurrencia[2] = probTC;

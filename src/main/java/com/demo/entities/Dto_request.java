@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Dto_request {
 
-    public double probTablaA;
-    public double probTablaB;
-    public double probTablaC;
-    public double probTablaD;
+    public double probTA;
+    public double probTB;
+    public double probTC;
+    public double probTD;
     public Integer timeTA;
     public Integer timeTB;
     public Integer timeTC;

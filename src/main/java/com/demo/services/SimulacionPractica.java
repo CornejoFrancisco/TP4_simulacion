@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Service
 @NoArgsConstructor
@@ -24,21 +26,21 @@ public class SimulacionPractica extends Simulacion {
                                       double tiempo_equipoC,
                                       double tiempo_equipoCHasta) {
 
+
         tiempo_simulacion = 10;
 
         Trabajo[] trabajosArray = trabajos.toArray(new Trabajo[0]);
 
         double reloj = 0;
         // Llegada de un equipo
-        Llegada llegada = new Llegada();
-        llegada.calcularTiempoEntreLlegada(reloj);
-        llegada.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
+        Llegada llegada_primera = new Llegada();
+        llegada_primera.calcularTiempoEntreLlegada(reloj);
+        llegada_primera.setTrabajo(null);
+        llegada_primera.setRndTipoTrabajo(0.0);
+
 
         // Cola de equipos
-        ColaVector colaVector = new ColaVector();
-        colaVector.sumarColaComun();
-        colaVector.sumarColaTrabajoC();
-        colaVector.sumarTrabajoCSegundoPlano();
+        ColaVector colaVectorInicio = new ColaVector(0, 0, 0, 9);
 
 
         int contadorEquipo = 0;
@@ -47,11 +49,10 @@ public class SimulacionPractica extends Simulacion {
         double horaReanudacionTrabajoC = 0.0;
         int lugares_libresColaComun = 9;
 
-        double hora_proximaLlegada = llegada.getTiempoHoraProximaLlegada();
+        double hora_proximaLlegada = llegada_primera.getTiempoHoraProximaLlegada();
         double hora_proximoFinTrabajo = 100;
         double hora_cambio_trabajo_C = 100;
         double hora_reanudacion_trabajo_C = 100;
-
 
 
         boolean proxima_llegada = true;
@@ -65,20 +66,24 @@ public class SimulacionPractica extends Simulacion {
         /*finTrabajo.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);*/
 
         // crea el servidor
-        Servidor servidor = new Servidor(EstadoServidor.Libre, 0, 0, 0, 0);
+        Servidor servidorInicio = new Servidor(EstadoServidor.Libre, 0, 0, 0, 0);
 
         // para guardas las cosas que nos piden
         ArrayList<FilaVector> filaVectors = new ArrayList<>();
 
         ArrayList<Equipo> trabajos_equipos = new ArrayList<>();
 
-        ArrayList<EquipoCola> colaComun = new ArrayList<>();
+        ArrayList<Equipo> colaComun = new ArrayList<>();
 
-        ArrayList<EquipoCola> colaTrabajoC = new ArrayList<>();
+        ArrayList<Equipo> colaTrabajoC = new ArrayList<>();
 
+        ArrayList<FinTrabajo> colaTrabajoFinalizado = new ArrayList<>();
 
         // La lista del vector
-        FilaVector filaVectorActual = new FilaVector(Evento.Inicio, reloj, llegada, colaVector, contadorEquipo, horaCambioTrabajoC, 0.0, finTrabajo, servidor, new ArrayList<>());
+        FilaVector filaVectorActual = new FilaVector(Evento.Inicio, reloj, llegada_primera, colaVectorInicio, contadorEquipo, horaCambioTrabajoC, 0.0, finTrabajo, servidorInicio, new ArrayList<>());
+
+        System.out.println(filaVectorActual.toString());
+
 
         // Aca tengo la fila anterior
         filaVectors.add(filaVectorActual);
@@ -89,107 +94,132 @@ public class SimulacionPractica extends Simulacion {
 
         double tiempo_permanencia_equipos = 0;
 
-        reloj = llegada.tiempoHoraProximaLlegada;
-
-
-
+        reloj = llegada_primera.tiempoHoraProximaLlegada;
 
 
         while (reloj < tiempo_simulacion) {
+
+            FilaVector filaVectorAnterior = filaVectors.get(filaVectors.size() - 1);
+
             // Llega la primera equipo;
             if (contador_equipos == 0) {
                 contador_equipos += 1;
 
+
+                ColaVector colaVector1 = new ColaVector(filaVectorAnterior.getColaVector().getColaComun(), filaVectorAnterior.getColaVector().getColaTrabajoC(), filaVectorAnterior.getColaVector().getTrabajoCSegundoPlano(), filaVectorAnterior.getColaVector().getLugaresLibres());
+                System.out.println(colaVector1.toString());
                 Llegada llegadaDipositivo = new Llegada();
                 llegadaDipositivo.calcularTiempoEntreLlegada(reloj);
                 llegadaDipositivo.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
 
+
                 hora_proximaLlegada = reloj + llegadaDipositivo.getTiempoEntreLlegada();
 
-                FilaVector filaVectorAnterior = filaVectors.get(filaVectors.size() - 1);
 
-                finTrabajo.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
-                double hora_salida = finTrabajo.getHorafinTrabajo();
-                hora_proximoFinTrabajo = hora_salida;
+                FinTrabajo finTrabajo1 = new FinTrabajo();
+                finTrabajo1.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
 
-                servidor.setEstado(EstadoServidor.Ocupado);
-                servidor.setHoraFinOcupacion(0);
-                servidor.setTiempoOcupacionAcum(0);
-                servidor.setTiempoPermanenciaEquipoAcum(0);
+                colaTrabajoFinalizado.add(finTrabajo1);
 
-                if(llegadaDipositivo.getTrabajo() == Trabajo.C){
+                hora_proximoFinTrabajo = finTrabajo1.getHorafinTrabajo();
+
+                Servidor servidorPrimerVuelta = new Servidor(EstadoServidor.Libre, filaVectorAnterior.getServidor().horaInicioOcupacion, filaVectorAnterior.getServidor().horaFinOcupacion,filaVectorAnterior.getServidor().tiempoPermanenciaEquipoAcum, filaVectorAnterior.getServidor().tiempoOcupacionAcum);
+
+                servidorPrimerVuelta.setEstado(EstadoServidor.Ocupado);
+                servidorPrimerVuelta.setHoraFinOcupacion(0);
+                servidorPrimerVuelta.setTiempoOcupacionAcum(0);
+                servidorPrimerVuelta.setTiempoPermanenciaEquipoAcum(0);
+
+                if (llegadaDipositivo.getTrabajo().equals(Trabajo.C)) {
                     hora_cambio_trabajo_C = reloj + tiempo_equipoC;
-                    colaTrabajoC.add(new EquipoCola(Trabajo.C, 0, 0, 0));
-                    colaVector.setColaTrabajoC(colaVector.getColaTrabajoC() + 1);
+                    colaVector1.sumarColaTrabajoC();
+
+                } else {
+                    colaVector1.sumarColaComun();
                 }
 
-                Equipo equipo = new Equipo(1, EstadoEquipo.Atendido, llegadaDipositivo.getTrabajo(), filaVectorAnterior.getLlegada().getTiempoEntreLlegada(), filaVectorAnterior.getLlegada().getTiempoEntreLlegada(), finTrabajo.getHorafinTrabajo(), hora_salida);
+
+                Equipo equipo = new Equipo(contador_equipos, EstadoEquipo.Atendido, llegadaDipositivo.getTrabajo(), filaVectorAnterior.getLlegada().getTiempoEntreLlegada(), filaVectorAnterior.getLlegada().getTiempoEntreLlegada(), finTrabajo.getHorafinTrabajo(), 0);
                 trabajos_equipos.add(equipo);
-                FilaVector filaVectorActual1 = new FilaVector(Evento.Llegada, reloj, llegadaDipositivo, colaVector, filaVectorAnterior.getContadorEquipo() + 1, filaVectorAnterior.getHoraCambioTrabajoC(), filaVectorAnterior.getHoraReanudacionTrabajoC(), finTrabajo, servidor, trabajos_equipos);
-                filaVectors.clear();
+
+                colaComun.add(equipo);
+
+                FilaVector filaVectorActual1 = new FilaVector(Evento.Llegada, reloj, llegadaDipositivo, colaVector1, filaVectorAnterior.getContadorEquipo() + 1, filaVectorAnterior.getHoraCambioTrabajoC(), filaVectorAnterior.getHoraReanudacionTrabajoC(), finTrabajo1, servidorPrimerVuelta, trabajos_equipos);
+                //filaVectors.clear();
                 filaVectors.add(filaVectorActual1);
 
+
             } else {
-                if(proxima_llegada) {
+                if (proxima_llegada) {
 
-                    FilaVector filaVectorAnterior = filaVectors.get(filaVectors.size() - 1);
-
+                    ColaVector colaVectorProximaLlegada = new ColaVector(filaVectorAnterior.getColaVector().getColaComun(), filaVectorAnterior.getColaVector().getColaTrabajoC(), filaVectorAnterior.getColaVector().getTrabajoCSegundoPlano(), filaVectorAnterior.getColaVector().getLugaresLibres());
+                    Servidor servidorAnterior = filaVectorAnterior.servidor;
                     Llegada llegada1 = new Llegada();
                     llegada1.calcularTiempoEntreLlegada(reloj);
                     llegada1.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
                     hora_proximaLlegada = reloj + llegada1.getTiempoEntreLlegada();
+                    FinTrabajo finTrabajo2 = new FinTrabajo();
+                    finTrabajo2.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
 
-                    finTrabajo.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
-                    hora_proximoFinTrabajo = finTrabajo.getHorafinTrabajo();
 
-                    if(servidor.getEstado().equals(EstadoServidor.Ocupado)){
-                        if(filaVectorAnterior.getColaVector().getLugaresLibres() >= 1) {
-                            if (llegada.getTrabajo().equals(Trabajo.C)) {
+                    colaTrabajoFinalizado.add(finTrabajo2);
+                    System.out.println(colaTrabajoFinalizado.toString());
 
-                                if (filaVectorAnterior.getColaVector().getLugaresLibres() > 0) {
-                                    filaVectorAnterior.getColaVector().setLugaresLibres(filaVectorAnterior.getColaVector().getLugaresLibres() - 1);
-                                    filaVectorAnterior.getColaVector().setTrabajoCSegundoPlano(filaVectorAnterior.getColaVector().getTrabajoCSegundoPlano() + 1);
-                                    double hora_atencion = reloj + tiempo_equipoC;
-                                    double hora_cambioHora = reloj + tiempo_equipoC;
-                                    double hora_fin_Anterior = finTrabajo.getHorafinTrabajo();
+                    for (FinTrabajo fintrabajo01 : colaTrabajoFinalizado) {
+                        if (fintrabajo01.getHorafinTrabajo() < hora_proximoFinTrabajo) {
+                            hora_proximoFinTrabajo = fintrabajo01.getHorafinTrabajo();
+                            System.out.println("Hora fin trabajo" + hora_proximoFinTrabajo);
+                        }
+                    }
 
-                                    EquipoCola equipoC = new EquipoCola(Trabajo.C, hora_atencion, hora_cambioHora,  hora_fin_Anterior);
-                                    colaTrabajoC.add(equipoC);
-                                }
+
+                    Servidor servidorProximaLlegada = new Servidor(EstadoServidor.Libre, filaVectorAnterior.getServidor().horaInicioOcupacion, filaVectorAnterior.getServidor().horaFinOcupacion,filaVectorAnterior.getServidor().tiempoPermanenciaEquipoAcum, filaVectorAnterior.getServidor().tiempoOcupacionAcum);
+
+
+                    if (servidorAnterior.getEstado().equals(EstadoServidor.Ocupado)) {
+                        if (filaVectorAnterior.getColaVector().getLugaresLibres() >= 1) {
+                            if (llegada1.getTrabajo().equals(Trabajo.C)) {
+                                colaVectorProximaLlegada.sumarColaTrabajoC();
+                                double hora_atencion = reloj + tiempo_equipoC;
+                                double hora_cambioHora = reloj + tiempo_equipoC;
+                                double hora_fin_Anterior = finTrabajo2.getHorafinTrabajo();
+                                Equipo equipoColaC = new Equipo(contador_equipos, EstadoEquipo.EncolaC, llegada1.getTrabajo(), reloj, 0, 0, 0);
+                                colaTrabajoC.add(equipoColaC);
+
                             } else {
-                                if (filaVectorAnterior.getColaVector().getColaComun() > 0) {
-                                    filaVectorAnterior.getColaVector().setColaComun(filaVectorAnterior.getColaVector().getColaComun() + 1);
-                                    filaVectorAnterior.getColaVector().setLugaresLibres(filaVectorAnterior.getColaVector().getLugaresLibres() - 1);
-                                    EquipoCola equipoCola = new EquipoCola(llegada1.getTrabajo(), reloj, 0, 0);
-                                    colaComun.add(equipoCola);
-                                }
+
+                                colaVectorProximaLlegada.sumarColaComun();
+                                Equipo equipoColaComun = new Equipo(contador_equipos, EstadoEquipo.EnCola, llegada1.getTrabajo(), reloj, 0, 0, 0);
+                                colaComun.add(equipoColaComun);
 
                             }
                         }
 
+                        servidorProximaLlegada.setEstado(EstadoServidor.Ocupado);
 
-                    }else{
-                        servidor.setEstado(EstadoServidor.Ocupado);
-                        servidor.setHoraFinOcupacion(reloj);
-                        llegada.calcularTiempoEntreLlegada(reloj);
-                        llegada.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
-                        finTrabajo.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
+                    } else {
+
+                        servidorProximaLlegada.setEstado(EstadoServidor.Ocupado);
+                        servidorProximaLlegada.setHoraFinOcupacion(reloj);
+                        llegada1.calcularTiempoEntreLlegada(reloj);
+                        llegada1.calcularTipoTrabajo(trabajosArray, probabilidadesOcurrencia);
+                        finTrabajo2.calcularMediaTiempo(probabilidadesOcurrencia, tiemposDemora, reloj);
 
                         Equipo equipo = new Equipo();
 
 
-                        if(llegada.getTrabajo().equals(Trabajo.C)){
+                        if (llegada1.getTrabajo().equals(Trabajo.C)) {
                             equipo.setEquipo_estado(EstadoEquipo.EncolaC);
-                            equipo.setTipo_trabajo(llegada.getTrabajo());
+                            equipo.setTipo_trabajo(llegada1.getTrabajo());
                             equipo.setHora_llegada(reloj);
                             equipo.setHora_Inicio_atencion(horaCambioTrabajoC);
                             equipo.setHora_fin_atencion(finTrabajo.horafinTrabajo);
 
                             horaCambioTrabajoC = reloj + tiempo_equipoC;
 
-                        }else{
+                        } else {
                             equipo.setEquipo_estado(EstadoEquipo.Atendido);
-                            equipo.setTipo_trabajo(llegada.getTrabajo());
+                            equipo.setTipo_trabajo(llegada1.getTrabajo());
                             equipo.setHora_llegada(reloj);
                             equipo.setHora_Inicio_atencion(horaCambioTrabajoC);
                             equipo.setHora_fin_atencion(finTrabajo.horafinTrabajo);
@@ -198,79 +228,109 @@ public class SimulacionPractica extends Simulacion {
                         }
 
                     }
-                    FilaVector filaVectorActual2 = new FilaVector(Evento.Llegada, reloj, llegada1, colaVector, filaVectorAnterior.getContadorEquipo() + 1, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo, servidor, trabajos_equipos);
+
+                    Servidor servidor1 = new Servidor(EstadoServidor.Ocupado, reloj, 0, 0, 0);
+                    FilaVector filaVectorActual2 = new FilaVector(Evento.Llegada, reloj, llegada1, colaVectorProximaLlegada, filaVectorAnterior.getContadorEquipo() + 1, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo2, servidorProximaLlegada, trabajos_equipos);
+
+
+
                     filaVectors.add(filaVectorActual2);
 
                 }
 
                 if (proximoFinTrabajo) {
 
-                    if(colaTrabajoC.size() != 0){
+                    Llegada llegadaFinTrabajo = new Llegada();
 
+                    ColaVector colaVectorFinTrabajo = new ColaVector(filaVectorAnterior.getColaVector().getColaComun(), filaVectorAnterior.getColaVector().getColaTrabajoC(), filaVectorAnterior.getColaVector().getTrabajoCSegundoPlano(), filaVectorAnterior.getColaVector().getLugaresLibres());
+                    filaVectorAnterior.getServidor();
+                    Servidor servidorFinTrabajo = new Servidor(EstadoServidor.Libre, filaVectorAnterior.getServidor().horaInicioOcupacion, filaVectorAnterior.getServidor().horaFinOcupacion,filaVectorAnterior.getServidor().tiempoPermanenciaEquipoAcum, filaVectorAnterior.getServidor().tiempoOcupacionAcum);
 
-                        Equipo equipo = new Equipo();
+                    if (colaTrabajoC.size() != 0) {
+                        System.out.println(colaTrabajoC.toString());
+                        Optional<Equipo> equipoConMenorLlegada = colaTrabajoC.stream()
+                                .filter(e -> e.getEquipo_estado().equals(EstadoEquipo.EncolaC) && e.getHora_fin_atencion() == 0.0)
+                                .min(Comparator.comparingDouble(Equipo::getHora_llegada));
 
-                        equipo.setEquipo_estado(EstadoEquipo.Finalizado);
+                        if(equipoConMenorLlegada.isPresent()) {
+                            Equipo equipoMenorC = equipoConMenorLlegada.get();
+                            equipoMenorC.setEquipo_estado(EstadoEquipo.Atendido);
+                            equipoMenorC.setHora_Inicio_atencion(reloj);
+                            equipoMenorC.setHora_fin_atencion(reloj + finTrabajo.getHorafinTrabajo());
+                            equipoMenorC.setHora_salida(reloj + finTrabajo.getHorafinTrabajo());
+                            double hora_llegada = equipoMenorC.getHora_llegada();
 
-                        colaTrabajoC.remove(0);
-
-                        equipo.setHora_salida(reloj);
-
-
-
-                        double hora_llegada = equipo.getHora_llegada();
-                        double hora_salida = equipo.getHora_salida();
-                        double tiempo_permanencia = hora_salida - hora_llegada;
-                        tiempo_permanencia_equipos += tiempo_permanencia;
-
-                    }else{
-                        if(colaComun.size() != 0){
-                            EquipoCola equipoCola = colaComun.get(0);
-                            colaComun.remove(0);
-                            trabajos_equipos.get(trabajos_equipos.size() - 1).setHora_Inicio_atencion(reloj);
-                            trabajos_equipos.get(trabajos_equipos.size() - 1).setHora_fin_atencion(reloj + finTrabajo.getHorafinTrabajo());
-                            trabajos_equipos.get(trabajos_equipos.size() - 1).setHora_salida(reloj + finTrabajo.getHorafinTrabajo());
-                            double hora_llegada = trabajos_equipos.get(trabajos_equipos.size() - 1).getHora_llegada();
-                            double hora_salida = trabajos_equipos.get(trabajos_equipos.size() - 1).getHora_salida();
+                            horaCambioTrabajoC = reloj + 0.25;
+                            double hora_salida = equipoMenorC.getHora_salida();
                             double tiempo_permanencia = hora_salida - hora_llegada;
                             tiempo_permanencia_equipos += tiempo_permanencia;
+                            colaVectorFinTrabajo.setColaTrabajoC(colaVectorFinTrabajo.getColaTrabajoC() - 1);
+
+                            trabajos_equipos.add(equipoMenorC);
                         }
-                        else{
-                            servidor.setEstado(EstadoServidor.Libre);
-                            servidor.setHoraFinOcupacion(0);
-                            servidor.setTiempoOcupacionAcum(servidor.getTiempoOcupacionAcum() + tiempo_ocupacion);
-                            servidor.setTiempoPermanenciaEquipoAcum(servidor.getTiempoPermanenciaEquipoAcum() + tiempo_permanencia_equipos);
-                            tiempo_ocupacion = 0;
-                            tiempo_permanencia_equipos = 0;
+
+                    } else {
+                        if (colaComun.size() != 0) {
+                            System.out.println("Cola Comun" );
+                            System.out.println(colaComun.toString());
+
+                            Optional<Equipo> equipoConMenorLlegada = colaComun.stream()
+                                    .filter(e -> e.getEquipo_estado().equals(EstadoEquipo.EnCola) && e.getHora_fin_atencion() == 0.0)
+                                    .min(Comparator.comparingDouble(Equipo::getHora_llegada));
+                            if (equipoConMenorLlegada.isPresent()) {
+                                Equipo equipoMenor = equipoConMenorLlegada.get();
+                                equipoMenor.setEquipo_estado(EstadoEquipo.Atendido);
+                                equipoMenor.setHora_Inicio_atencion(reloj);
+                                equipoMenor.setHora_fin_atencion(reloj + finTrabajo.getHorafinTrabajo());
+                                equipoMenor.setHora_salida(reloj + finTrabajo.getHorafinTrabajo());
+                                double hora_llegada = equipoMenor.getHora_llegada();
+                                double hora_salida = equipoMenor.getHora_salida();
+                                double tiempo_permanencia = hora_salida - hora_llegada;
+                                tiempo_permanencia_equipos += tiempo_permanencia;
+                                colaVectorFinTrabajo.setColaComun(colaVectorFinTrabajo.getColaComun() - 1);
+                                trabajos_equipos.add(equipoMenor);
+                            }
                         }
 
                     }
-                    hora_proximoFinTrabajo = 100;
-                    FilaVector filaVectorActual3 = new FilaVector(Evento.FinTrabajo, reloj, llegada, colaVector, contadorEquipo, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo, servidor, trabajos_equipos);
+
+                    FilaVector filaVectorActual3 = new FilaVector(Evento.FinTrabajo, reloj, llegadaFinTrabajo, colaVectorFinTrabajo, contadorEquipo, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo, servidorFinTrabajo, trabajos_equipos);
+
                     filaVectors.add(filaVectorActual3);
+
+                    for (FinTrabajo fintrabajo01 : colaTrabajoFinalizado) {
+                        if (fintrabajo01.getHorafinTrabajo() < hora_proximoFinTrabajo && fintrabajo01.getHorafinTrabajo() < reloj ) {
+                            hora_proximoFinTrabajo = fintrabajo01.getHorafinTrabajo();
+                            System.out.println("Hora fin trabajo: " + hora_proximoFinTrabajo);
+                        }else{
+                            hora_proximoFinTrabajo = 100;
+                        }
+                    }
+
+
+
                 }
 
                 if (proximoCambio_trabajo) {
 
 
-
-
-
-
                 }
 
                 if (proximoReanudacion_trabajo) {
-                    if (servidor.getEstado().equals(EstadoServidor.Libre)){
 
-                        EquipoCola equipoColaAnterior = colaTrabajoC.get(0);
+                    ColaVector colaProximaReanudacion = new ColaVector(filaVectorAnterior.getColaVector().getColaComun(), filaVectorAnterior.getColaVector().getColaTrabajoC(), filaVectorAnterior.getColaVector().getTrabajoCSegundoPlano(), filaVectorAnterior.getColaVector().getLugaresLibres());
+                    Servidor servidorAnterior = filaVectorAnterior.getServidor();
+                    if (servidorAnterior.getEstado().equals(EstadoServidor.Libre)) {
+
+                        Equipo equipoColaAnterior = colaTrabajoC.get(0);
                         colaTrabajoC.remove(0);
                         Llegada llegada1 = new Llegada();
-                        horaReanudacionTrabajoC = equipoColaAnterior.getHora_finatencion() - tiempo_equipoCHasta;
+                        horaReanudacionTrabajoC = equipoColaAnterior.getHora_fin_atencion() - tiempo_equipoCHasta;
                         hora_reanudacion_trabajo_C = horaReanudacionTrabajoC;
 
-                        servidor.setEstado(EstadoServidor.Libre);
+                        servidorAnterior.setEstado(EstadoServidor.Libre);
 
-                        FilaVector filaVector = new FilaVector(Evento.Cambio, reloj, llegada1, colaVector, contadorEquipo, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo, servidor, trabajos_equipos);
+                        FilaVector filaVector = new FilaVector(Evento.Cambio, reloj, llegada1, colaProximaReanudacion, contadorEquipo, horaCambioTrabajoC, horaReanudacionTrabajoC, finTrabajo, servidorAnterior, trabajos_equipos);
 
                         filaVectors.add(filaVector);
                     }
@@ -280,7 +340,6 @@ public class SimulacionPractica extends Simulacion {
 
 
             }
-
 
 
             if (hora_proximaLlegada < hora_proximoFinTrabajo && hora_proximaLlegada < hora_cambio_trabajo_C && hora_proximaLlegada < hora_reanudacion_trabajo_C) {
@@ -324,7 +383,8 @@ public class SimulacionPractica extends Simulacion {
                 proximoCambio_trabajo = false;
                 proximoFinTrabajo = false;
                 proxima_llegada = false;
-            };
+            }
+            ;
 
 
         }
