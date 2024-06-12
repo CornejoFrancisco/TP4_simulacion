@@ -11,7 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class Controller {
+
+    private SimulacionPractica simulacionPractica;
+
+    public Controller(SimulacionPractica simulacionPractica) {
+        this.simulacionPractica = simulacionPractica;
+    }
 
     @PostMapping("/simular")
     public ResponseEntity<List<FilaVector>> simular(@RequestBody(required = false) Dto_request simulacionRequest) {
@@ -33,29 +40,30 @@ public class Controller {
         double initTimeView = simulacionRequest.getInitTimeView();
         int cantSimIterations = simulacionRequest.getCantSimIterations();
 
+        // Crea un array con las probabilidades
         double[] probabilidadesOcurrencia = new double[4];
-
-
         probabilidadesOcurrencia[0] = probTA;
         probabilidadesOcurrencia[1] = probTB;
         probabilidadesOcurrencia[2] = probTC;
         probabilidadesOcurrencia[3] = probTD;
 
+        // Crea un array con los tiempos medio de trabajo
         double[] tiemposDemora = new double[4];
         tiemposDemora[0] = timeTA;
         tiemposDemora[1] = timeTB;
         tiemposDemora[2] = timeTC;
         tiemposDemora[3] = timeTD;
 
-        SimulacionPractica simulacion = new SimulacionPractica();
-        ArrayList<FilaVector> values = simulacion.cola(
+        ArrayList<FilaVector> values = simulacionPractica.cola(
                 cantTimeSim, // tiempo_simulacion
                 probabilidadesOcurrencia,
                 tiemposDemora,
                 timeMin, // limite_inferiorUniforme
                 timeMax, // limite_superiorUniforme
-                timeInitTC, // tiempo_equipoC
-                timeEndTC // tiempo_equipoCHasta
+                timeInitTC, // Tiempo desde que inicia el trabajo C hasta que queda solo
+                timeEndTC, // Tiempo antes de terminar el trabajo C en el que hay que retomarlo
+                initTimeView, // Tiempo desde el que empieza a guardar filas del vector para devolver
+                cantSimIterations // Cantidad de iteraciones que devuelve
         );
         return ResponseEntity.ok(values);
     }

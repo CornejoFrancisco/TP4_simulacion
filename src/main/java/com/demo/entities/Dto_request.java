@@ -25,5 +25,4 @@ public class Dto_request {
     public Integer cantTimeSim;
     public Integer initTimeView;
     public Integer cantSimIterations;
-
 }

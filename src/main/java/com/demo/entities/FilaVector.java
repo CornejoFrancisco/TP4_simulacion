@@ -1,19 +1,18 @@
 package com.demo.entities;
 
-import com.demo.entities.Estados.Evento;
+import com.demo.entities.Estados.Eventos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 
 public class FilaVector {
-    public Evento evento;
+    public Eventos evento;
     public double reloj;
 
     public Llegada llegada;

@@ -1,12 +1,9 @@
 package com.demo.entities;
 
-import com.demo.entities.Estados.Trabajo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 @Data
@@ -15,12 +12,14 @@ import java.util.Random;
 
 
 public class FinTrabajo {
+
+    private int idEquipoFinTrabajo;
     public double rndFinTrabajo;
 
     public double mediaTiempoAtencion;
     public double tiempoAtencion;
 
-    public double horafinTrabajo;
+    public double horaEvento;
 
     private double rndFinTrabajoCalculo() {
         Random random = new Random();
@@ -43,7 +42,7 @@ public class FinTrabajo {
             if (ran >= linf && ran < lsup) {
                 this.mediaTiempoAtencion = tiempo_trabajo[i];
                 this.tiempoAtencion = (this.mediaTiempoAtencion - 0.083) + ran * ((this.mediaTiempoAtencion + 0.083) - (this.mediaTiempoAtencion - 0.083));
-                this.horafinTrabajo = reloj + tiempoAtencion;
+                this.horaEvento = reloj + tiempoAtencion;
                 return;
             }
         }

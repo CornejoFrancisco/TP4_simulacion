@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Arrays;
 import java.util.Random;
 
 @Data
@@ -17,7 +16,7 @@ public class Llegada {
 
     public double rndLlegada;
     public double tiempoEntreLlegada;
-    public double tiempoHoraProximaLlegada;
+    public double horaProximaLlegada;
 
     public double rndTipoTrabajo;
     public Trabajo trabajo;
@@ -29,6 +28,7 @@ public class Llegada {
         double numero_random = Math.round(numero_random1 * 100.0) / 100.0;
         return numero_random;
     }
+
     public void calcularTiempoEntreLlegada(double reloj) {
         double ran = rndLlegada();
         ran = Math.round(ran * 100.0) / 100.0;
@@ -37,12 +37,10 @@ public class Llegada {
 
         this.rndLlegada = ran;
         this.tiempoEntreLlegada = tiempo_entre_llegada;
-        this.tiempoHoraProximaLlegada = tiempo_entre_llegada + reloj;
+        this.horaProximaLlegada = tiempo_entre_llegada + reloj;
     }
 
     public void calcularTipoTrabajo(Trabajo[] trabajos, double[] valores_probabilidad) {
-
-
 
         Random random = new Random();
         double ran = random.nextDouble();
