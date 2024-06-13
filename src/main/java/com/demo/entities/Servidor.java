@@ -16,12 +16,11 @@ public class Servidor {
     public double tiempoOcupacionAcum;
     public double tiempoPermanenciaEquipoAcum;
 
-    public void setHoraFinOcupacion(double horaFinOcupacion) {
-        this.horaFinOcupacion = horaFinOcupacion;
+    public void acumularTiempoOcupacion() {
         this.tiempoOcupacionAcum = this.tiempoOcupacionAcum + this.horaFinOcupacion - this.horaInicioOcupacion;
     }
 
-    public void setTiempoPermanenciaEquipoAcum(double tiempoPermanenciaEquipoAcum) {
+    public void acumTiempoPermanenciaEquipoAcum(double tiempoPermanenciaEquipoAcum) {
         this.tiempoPermanenciaEquipoAcum = this.tiempoPermanenciaEquipoAcum + tiempoPermanenciaEquipoAcum;
     }
 }

@@ -25,11 +25,26 @@ public class ColaVector {
 
     public void sumarColaTrabajoC() {
         this.colaTrabajoC++;
-        this.lugaresLibres--;
+        this.trabajoCSegundoPlano--;
     }
 
     public void sumarTrabajoCSegundoPlano() {
         this.trabajoCSegundoPlano++;
         this.lugaresLibres--;
+    }
+
+    public void restarColaC() {
+        this.colaTrabajoC--;
+        this.lugaresLibres++;
+    }
+
+    public void restarColaComun() {
+        this.colaComun--;
+        this.lugaresLibres++;
+    }
+
+    public void restarTrabajoCSegundoPlano() {
+        this.trabajoCSegundoPlano--;
+        this.lugaresLibres++;
     }
 }

@@ -5,30 +5,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Dto_Respuesta {
-    public String evento;
-    public double reloj;
-    public double rndLlegada;
-    public double tiempoLlegada;
-    public double proximaLlegada;
-    public double rndTrabajoTipo;
-    public String trabajoTipo;
-    public Integer colaComun;
-    public Integer colaTrabajoC;
-    public Integer trabajoCSegundoPlano;
-    public Integer lugaresLibres;
-    public Integer contadorEquipo;
-    public double horaCambioTrabajoC;
-    public double horaReanudacionTrabajoC;
-    public double rndFinTrabajo;
-    public double tiempoFinTrabajo;
-    public double horaFinTrabajo;
-    public String estadoServidor;
-    public double inicioOcupacionServidor;
-    public double finOcupacionServidor;
-    public double tiempoOcupacionServidor;
-    public double tiempoPermaneciaEquipo;
+    private ArrayList<FilaVector> filas = new ArrayList<>();
+    private ArrayList<Equipo> equipos = new ArrayList<>();
+    private Double promedioPermanencia = null;
+    private Double porcentajeOcupacionServidor = null;
+
+    public void calcularPromedioPermanencia(Integer cantidadEquipos, Double tiempoPermanenciaEquipoAcum){
+        this.promedioPermanencia = tiempoPermanenciaEquipoAcum / cantidadEquipos;
+    }
+
+    public void calcularPorcentajeOcupacion(Double tiempoSimulacion, Double tiempoOcupacionAcum){
+        this.porcentajeOcupacionServidor = (tiempoOcupacionAcum / tiempoSimulacion) * 100;
+    }
+
 }
+

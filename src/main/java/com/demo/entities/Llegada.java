@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 @Data
@@ -40,25 +41,51 @@ public class Llegada {
         this.horaProximaLlegada = tiempo_entre_llegada + reloj;
     }
 
-    public void calcularTipoTrabajo(Trabajo[] trabajos, double[] valores_probabilidad) {
+    private Double generateRandom() {
+        Random rnd = new Random();
+        double rndCeroUno = rnd.nextDouble();
+        return (Math.round(rndCeroUno * 100.0) / 100.0);
+    }
 
-        Random random = new Random();
-        double ran = random.nextDouble();
-        ran = Math.round(ran * 100.0) / 100.0;
-        double[][] intervalos_probabilidad = intervalos(valores_probabilidad);
-        this.rndTipoTrabajo = ran;
 
-        for (int i = 0; i < intervalos_probabilidad.length; i++) {
-            double linf = intervalos_probabilidad[i][0];
-            double lsup = intervalos_probabilidad[i][1];
+    public void calcularTipoTrabajo(ArrayList<Trabajo> tiposTrabajo,
+                                    ArrayList<Double> probabilidadesTipoTrabajo) {
 
-            if (ran >= linf && ran < lsup) {
-                this.trabajo = trabajos[i];
-                return;
+        Double rnd = generateRandom();
+        ArrayList<Double> liProbabilidadesTipoTrabajo =
+                calcularLimitesInferiores(probabilidadesTipoTrabajo);
+
+        this.rndTipoTrabajo = rnd;
+
+        for (int i = 0; i <= liProbabilidadesTipoTrabajo.size() - 1; i++) {
+            if (i == liProbabilidadesTipoTrabajo.size() - 1) {
+                if (rnd >= liProbabilidadesTipoTrabajo.get(i)) {
+                    this.trabajo = tiposTrabajo.get(i);
+                }
+            } else {
+                if (rnd >= liProbabilidadesTipoTrabajo.get(i) &&
+                        rnd < liProbabilidadesTipoTrabajo.get(i + 1)
+                ) {
+                    this.trabajo = tiposTrabajo.get(i);
+                    break;
+                }
             }
         }
+    }
 
-        this.trabajo = Trabajo.D;
+    private ArrayList<Double> calcularLimitesInferiores(ArrayList<Double> arrayProbabilidades) {
+        ArrayList<Double> limitesInferiores = new ArrayList<>();
+        for (int i = 0; i <= arrayProbabilidades.size() - 1; i++) {
+            if (i == 0) {
+                limitesInferiores.add(0.00);
+            } else {
+                Double limiteInferiorAnterior = limitesInferiores.get(i - 1);
+                Double probabilidadAnterior = arrayProbabilidades.get(i - 1);
+                Double limiteInferiorActual = limiteInferiorAnterior + probabilidadAnterior;
+                limitesInferiores.add(limiteInferiorActual);
+            }
+        }
+        return limitesInferiores;
     }
 
     public double[][] intervalos(double[] valores_probabilidad) {
