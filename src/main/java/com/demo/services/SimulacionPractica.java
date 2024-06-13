@@ -472,7 +472,7 @@ public class SimulacionPractica extends Simulacion {
                 this.filaAnterior.getServidor().getTiempoPermanenciaEquipoAcum());
 
 
-        double horaCambioTrabajoC = this.filaAnterior.getHoraCambioTrabajoC();
+        double horaCambioTrabajoC = 0;
 
         Llegada llegadaEquipo = new Llegada();
         llegadaEquipo.calcularTiempoEntreLlegada(this.reloj);
