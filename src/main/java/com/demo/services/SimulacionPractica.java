@@ -149,7 +149,8 @@ public class SimulacionPractica extends Simulacion {
                 0,
                 0,
                 finTrabajo,
-                servidorInicio);
+                servidorInicio,
+                clonarEquipos());
 
 
         if (this.reloj >= this.tiempoInicioResultado && this.contadorIteracionesResultado <= this.cantidadItercaciones){
@@ -197,7 +198,6 @@ public class SimulacionPractica extends Simulacion {
 
         Dto_Respuesta resultados = new Dto_Respuesta();
         resultados.setFilas(vectorDeEstados);
-        resultados.setEquipos(trabajos_equipos);
         resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
         resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
 
@@ -298,7 +298,8 @@ public class SimulacionPractica extends Simulacion {
                 horaCambioTrabajoC,
                 0,
                 finTrabajo,
-                servidorActual
+                servidorActual,
+                clonarEquipos()
         );
 
     }
@@ -339,7 +340,8 @@ public class SimulacionPractica extends Simulacion {
                 0,
                 0,
                 new FinTrabajo(),
-                servidorActual
+                servidorActual,
+                clonarEquipos()
         );
 
     }
@@ -450,7 +452,8 @@ public class SimulacionPractica extends Simulacion {
                 horaCambioTrabajoC,
                 horaReanudacionTrabajoC,
                 finTrabajo,
-                servidorActual
+                servidorActual,
+                clonarEquipos()
         );
     }
 
@@ -551,7 +554,8 @@ public class SimulacionPractica extends Simulacion {
                 horaCambioTrabajoC,
                 0,
                 finTrabajo,
-                servidorActual);
+                servidorActual,
+                clonarEquipos());
     }
 
     private ArrayList<Equipo> clonarEquipos(){
@@ -568,6 +572,7 @@ public class SimulacionPractica extends Simulacion {
                 equipoClon.setHora_salida(equipo.getHora_salida());
                 equipos.add(equipoClon);
             }
+
         }
         return equipos;
     }

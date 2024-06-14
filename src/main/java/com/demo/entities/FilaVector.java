@@ -22,4 +22,5 @@ public class FilaVector {
     public double horaReanudacionTrabajoC;
     public FinTrabajo finTrabajo;
     public Servidor servidor;
+    public ArrayList<Equipo> equipos = new ArrayList<>();
 }

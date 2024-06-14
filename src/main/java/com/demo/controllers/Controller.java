@@ -60,6 +60,7 @@ public class Controller {
                 initTimeView, // Tiempo desde el que empieza a guardar filas del vector para devolver
                 cantSimIterations // Cantidad de iteraciones que devuelve
         );
+        System.out.println(values.getFilas().size());
         return ResponseEntity.ok(values);
     }
 }

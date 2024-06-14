@@ -12,7 +12,6 @@ import java.util.ArrayList;
 @NoArgsConstructor
 public class Dto_Respuesta {
     private ArrayList<FilaVector> filas = new ArrayList<>();
-    private ArrayList<Equipo> equipos = new ArrayList<>();
     private Double promedioPermanencia = null;
     private Double porcentajeOcupacionServidor = null;
 
