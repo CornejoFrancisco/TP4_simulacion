@@ -553,5 +553,23 @@ public class SimulacionPractica extends Simulacion {
                 finTrabajo,
                 servidorActual);
     }
+
+    private ArrayList<Equipo> clonarEquipos(){
+        ArrayList<Equipo> equipos = new ArrayList<>();
+        for (Equipo equipo : this.trabajos_equipos) {
+            if (equipo.getEquipo_estado() != EstadoEquipo.Finalizado) {
+                Equipo equipoClon = new Equipo();
+                equipoClon.setId_equipo(equipo.getId_equipo());
+                equipoClon.setEquipo_estado(equipo.getEquipo_estado());
+                equipoClon.setTipo_trabajo(equipo.getTipo_trabajo());
+                equipoClon.setHora_llegada(equipo.getHora_llegada());
+                equipoClon.setHora_Inicio_atencion(equipo.getHora_Inicio_atencion());
+                equipoClon.setHoraFinAtencionEstimada(equipo.getHoraFinAtencionEstimada());
+                equipoClon.setHora_salida(equipo.getHora_salida());
+                equipos.add(equipoClon);
+            }
+        }
+        return equipos;
+    }
 }
 
