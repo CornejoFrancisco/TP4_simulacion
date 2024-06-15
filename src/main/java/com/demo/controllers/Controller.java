@@ -1,8 +1,6 @@
 package com.demo.controllers;
 
-import com.demo.entities.Dto_Respuesta;
-import com.demo.entities.Dto_request;
-import com.demo.entities.FilaVector;
+import com.demo.entities.*;
 import com.demo.services.SimulacionPractica;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +21,7 @@ public class Controller {
     }
 
     @PostMapping("/simular")
-    public ResponseEntity<Dto_Respuesta> simular(@RequestBody(required = false) Dto_request simulacionRequest) {
+    public ResponseEntity<ResultadosSimulacion> simular(@RequestBody(required = false) Dto_request simulacionRequest) {
 
 
         double probTA = simulacionRequest.getProbTA();
@@ -49,7 +47,7 @@ public class Controller {
         // Crea un array con los tiempos medio de trabajo
         ArrayList<Double> tiemposDemora = new ArrayList<>(Arrays.asList(timeTA, timeTB, timeTC, timeTD));
 
-        Dto_Respuesta values = simulacionPractica.cola(
+        ResultadosSimulacion values = simulacionPractica.cola(
                 cantTimeSim, // tiempo_simulacion
                 probabilidadesOcurrencia,
                 tiemposDemora,
@@ -60,7 +58,16 @@ public class Controller {
                 initTimeView, // Tiempo desde el que empieza a guardar filas del vector para devolver
                 cantSimIterations // Cantidad de iteraciones que devuelve
         );
-        System.out.println(values.getFilas().size());
         return ResponseEntity.ok(values);
     }
+
+    @GetMapping("/datos")
+    public ResponseEntity<FilasPaginadas> getDatos(
+            @RequestParam int page
+    ) {
+        System.out.println("page: " + page);
+        FilasPaginadas filasPaginadas = simulacionPractica.getFilasPaginadas(page);
+        return ResponseEntity.ok(filasPaginadas);
+    }
+
 }
