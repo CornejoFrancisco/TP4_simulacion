@@ -65,30 +65,33 @@ public class SimulacionPractica extends Simulacion {
         this.proximoEvento = proximoEvento;
     }
 
-    public FilasPaginadas getFilasPaginadas(Integer page){
+    public FilasPaginadas getFilasPaginadas(Integer page) {
         FilasPaginadas filasPaginadas = new FilasPaginadas();
-        if (this.vectorDeEstados.size() > 1000){
-            if (page*1000+1000 > this.vectorDeEstados.size()){
-                filasPaginadas.setFilas(this.vectorDeEstados.subList(page*1000,this.vectorDeEstados.size()));
+        FilaVector ultimaFila = this.vectorDeEstados.getLast();
+        if (this.vectorDeEstados.size() > 1000) {
+            if (page * 1000 + 1000 > this.vectorDeEstados.size()) {
+                filasPaginadas.setFilas(this.vectorDeEstados.subList(page * 1000, this.vectorDeEstados.size()));
             } else {
-                filasPaginadas.setFilas(this.vectorDeEstados.subList(page*1000,page*1000+1000));
-
+                filasPaginadas.setFilas(this.vectorDeEstados.subList(page * 1000, page * 1000 + 1000));
             }
         } else {
             filasPaginadas.setFilas(this.vectorDeEstados);
+        }
+        if (!filasPaginadas.getFilas().contains(ultimaFila)) {
+            filasPaginadas.getFilas().add(ultimaFila);
         }
         return filasPaginadas;
     }
 
     public ResultadosSimulacion cola(double tiempo_simulacion,
-                                      ArrayList<Double> probabilidadesTipoTrabajo,
-                                      ArrayList<Double> tiemposMediaTrabajo,
-                                      double limite_inferiorUniforme,
-                                      double limite_superiorUniforme,
-                                      double tiempoDesdeInicioEquipoC,
-                                      double tiempoAntesFinEquipoC,
-                                      double tiempoInicioResultado,
-                                      int cantidadItercaciones) {
+                                     ArrayList<Double> probabilidadesTipoTrabajo,
+                                     ArrayList<Double> tiemposMediaTrabajo,
+                                     double limite_inferiorUniforme,
+                                     double limite_superiorUniforme,
+                                     double tiempoDesdeInicioEquipoC,
+                                     double tiempoAntesFinEquipoC,
+                                     double tiempoInicioResultado,
+                                     int cantidadItercaciones) {
 
         this.tiempoSimulacion = tiempo_simulacion;
         this.probabilidadesTipoTrabajo = probabilidadesTipoTrabajo;
@@ -167,7 +170,7 @@ public class SimulacionPractica extends Simulacion {
                 clonarEquipos());
 
 
-        if (this.reloj >= this.tiempoInicioResultado && this.contadorIteracionesResultado <= this.cantidadItercaciones){
+        if (this.reloj >= this.tiempoInicioResultado && this.contadorIteracionesResultado <= this.cantidadItercaciones) {
             this.vectorDeEstados.add(this.filaActual);
             this.contadorIteracionesResultado++;
         }
@@ -214,17 +217,15 @@ public class SimulacionPractica extends Simulacion {
         resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
         resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
         resultados.setCantidadFilas(this.vectorDeEstados.size());
-        if (this.vectorDeEstados.size() > 1000){
-            resultados.setFilasPaginadas(this.vectorDeEstados.subList(0,1000));
+        if (this.vectorDeEstados.size() > 1000) {
+            resultados.setFilasPaginadas(this.vectorDeEstados.subList(0, 1000));
         } else {
             resultados.setFilasPaginadas(this.vectorDeEstados);
         }
-
-//        Dto_Respuesta resultados = new Dto_Respuesta();
-//        resultados.setFilas(vectorDeEstados);
-//        resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
-//        resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
-
+        FilaVector ultimaFila = this.vectorDeEstados.getLast();
+        if (!resultados.getFilasPaginadas().contains(ultimaFila)) {
+            resultados.getFilasPaginadas().add(ultimaFila);
+        }
         return resultados;
     }
 
@@ -582,7 +583,7 @@ public class SimulacionPractica extends Simulacion {
                 clonarEquipos());
     }
 
-    private ArrayList<Equipo> clonarEquipos(){
+    private ArrayList<Equipo> clonarEquipos() {
         ArrayList<Equipo> equipos = new ArrayList<>();
         for (Equipo equipo : this.trabajos_equipos) {
             if (equipo.getEquipo_estado() != EstadoEquipo.Finalizado) {
