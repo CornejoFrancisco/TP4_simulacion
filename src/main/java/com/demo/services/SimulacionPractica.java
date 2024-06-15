@@ -158,7 +158,7 @@ public class SimulacionPractica extends Simulacion {
 
         // Crea la primer fila, para inciar el trabajo
         this.filaActual = new FilaVector(
-                Eventos.Inicio,
+                Eventos.Inicio.toString(),
                 this.reloj,
                 llegada_primera,
                 colaVectorInicio,
@@ -315,7 +315,7 @@ public class SimulacionPractica extends Simulacion {
         servidorActual.acumTiempoPermanenciaEquipoAcum(
                 equipoFinalizacion.getHora_salida() - equipoFinalizacion.getHora_llegada());
         this.filaActual = new FilaVector(
-                Eventos.FinTrabajo,
+                Eventos.FinTrabajo + " E"+ equipoFinalizacion.getId_equipo(),
                 this.reloj,
                 new Llegada(),
                 colasEstadoActual,
@@ -357,7 +357,7 @@ public class SimulacionPractica extends Simulacion {
         }
 
         this.filaActual = new FilaVector(
-                Eventos.Reanudacion,
+                Eventos.Reanudacion + " E"+ equipoReanudacion.getId_equipo(),
                 this.reloj,
                 new Llegada(),
                 colasEstadoActual,
@@ -407,9 +407,9 @@ public class SimulacionPractica extends Simulacion {
                 )
         );
 
-
+        Equipo equipoCambioTrabajo = this.proximoEvento.getEquipo();
         Double horaReanudacionTrabajoC =
-                this.proximoEvento.getEquipo().horaFinAtencionEstimada - this.tiempoAntesFinEquipoC;
+                equipoCambioTrabajo.getHoraFinAtencionEstimada() - this.tiempoAntesFinEquipoC;
         Double horaCambioTrabajoC = 0.00;
         FinTrabajo finTrabajo = new FinTrabajo();
 
@@ -469,7 +469,7 @@ public class SimulacionPractica extends Simulacion {
             servidorActual.acumularTiempoOcupacion();
         }
         this.filaActual = new FilaVector(
-                Eventos.Cambio,
+                Eventos.Cambio + " E"+ equipoCambioTrabajo.getId_equipo(),
                 this.reloj,
                 new Llegada(),
                 colasEstadoActual,
@@ -571,7 +571,7 @@ public class SimulacionPractica extends Simulacion {
         }
 
         this.filaActual = new FilaVector(
-                Eventos.Llegada,
+                Eventos.Llegada + " E"+ equipo.getId_equipo(),
                 this.reloj,
                 llegadaEquipo,
                 colasEstadoActual,
@@ -596,8 +596,6 @@ public class SimulacionPractica extends Simulacion {
                 equipoClon.setHoraFinAtencionEstimada(equipo.getHoraFinAtencionEstimada());
                 equipoClon.setHora_salida(equipo.getHora_salida());
                 equipos.add(equipoClon);
-            } else {
-                equipos.add(null);
             }
 
         }

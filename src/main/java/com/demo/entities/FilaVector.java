@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 
 public class FilaVector {
-    public Eventos evento;
+    public String evento;
     public double reloj;
 
     public Llegada llegada;
