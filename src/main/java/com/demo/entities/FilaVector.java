@@ -18,8 +18,8 @@ public class FilaVector {
     public Llegada llegada;
     public ColaVector colaVector;
     public int contadorEquipo;
-    public double horaCambioTrabajoC;
-    public double horaReanudacionTrabajoC;
+    public double PromedioPermanencia;
+    public double promedioOcupacion;
     public FinTrabajo finTrabajo;
     public Servidor servidor;
     public ArrayList<Equipo> equipos = new ArrayList<>();

@@ -16,6 +16,7 @@ public class Equipo {
     private Trabajo tipo_trabajo;
     private double hora_llegada;
     private double hora_Inicio_atencion;
+    private double horaReanudacionTrabajoC;
     private double horaFinAtencionEstimada;
     private double hora_salida;
     private boolean yaTermino;

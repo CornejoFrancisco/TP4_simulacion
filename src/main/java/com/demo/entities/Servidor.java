@@ -23,4 +23,8 @@ public class Servidor {
     public void acumTiempoPermanenciaEquipoAcum(double tiempoPermanenciaEquipoAcum) {
         this.tiempoPermanenciaEquipoAcum = this.tiempoPermanenciaEquipoAcum + tiempoPermanenciaEquipoAcum;
     }
+
+    public void acumularIteracionAIteracion(Double tiempoOcupacion){
+        this.tiempoOcupacionAcum = this.tiempoOcupacionAcum + tiempoOcupacion;
+    }
 }
