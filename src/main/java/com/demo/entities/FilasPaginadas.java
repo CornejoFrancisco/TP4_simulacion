@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FilasPaginadas {
-    private List<FilaVector> filas = null;
+    private List<FilaVector> filas;
 }

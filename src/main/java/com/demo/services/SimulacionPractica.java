@@ -8,6 +8,7 @@ import com.demo.entities.Estados.Trabajo;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimulacionPractica extends Simulacion {
+
     private ArrayList<Trabajo> trabajos = new ArrayList<>(Arrays.asList(Trabajo.values()));
     private Trabajo[] trabajosArray = trabajos.toArray(new Trabajo[0]);
     private double tiempoSimulacion;
@@ -46,6 +48,7 @@ public class SimulacionPractica extends Simulacion {
     private int contadorEquipos = 0;
 
 
+
     private void buscarProximoEvento() {
         double tiempoProximoEvento = 0;
         Evento proximoEvento = null;
@@ -68,16 +71,18 @@ public class SimulacionPractica extends Simulacion {
     public FilasPaginadas getFilasPaginadas(Integer page) {
         FilasPaginadas filasPaginadas = new FilasPaginadas();
         FilaVector ultimaFila = this.vectorDeEstados.getLast();
-        if (this.vectorDeEstados.size() > 1000) {
-            if (page * 1000 + 1000 > this.vectorDeEstados.size()) {
-                filasPaginadas.setFilas(this.vectorDeEstados.subList(page * 1000, this.vectorDeEstados.size()));
-            } else {
-                filasPaginadas.setFilas(this.vectorDeEstados.subList(page * 1000, page * 1000 + 1000));
-            }
+        if (this.vectorDeEstados.size() > 200) {
+            int fromIndex = page * 200;
+            int toIndex = Math.min((page + 1) * 200, this.vectorDeEstados.size());
+            filasPaginadas.setFilas(this.vectorDeEstados.subList(fromIndex, toIndex));
         } else {
             filasPaginadas.setFilas(this.vectorDeEstados);
         }
         if (!filasPaginadas.getFilas().contains(ultimaFila)) {
+            filasPaginadas.getFilas().add(ultimaFila);
+        }
+        if (filasPaginadas.getFilas().getFirst() == ultimaFila) {
+            filasPaginadas.getFilas().remove(ultimaFila);
             filasPaginadas.getFilas().add(ultimaFila);
         }
         return filasPaginadas;
@@ -217,15 +222,17 @@ public class SimulacionPractica extends Simulacion {
         resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
         resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
         resultados.setCantidadFilas(this.vectorDeEstados.size());
-        if (this.vectorDeEstados.size() > 1000) {
-            resultados.setFilasPaginadas(this.vectorDeEstados.subList(0, 1000));
+
+        if (this.vectorDeEstados.size() > 200) {
+            resultados.setFilasPaginadas(this.vectorDeEstados.subList(0, 200));
+            resultados.getFilasPaginadas().add(this.vectorDeEstados.getLast());
         } else {
             resultados.setFilasPaginadas(this.vectorDeEstados);
         }
-        FilaVector ultimaFila = this.vectorDeEstados.getLast();
-        if (!resultados.getFilasPaginadas().contains(ultimaFila)) {
-            resultados.getFilasPaginadas().add(ultimaFila);
-        }
+//        FilaVector ultimaFila = this.vectorDeEstados.getLast();
+//        if (!resultados.getFilasPaginadas().contains(ultimaFila)) {
+//            resultados.getFilasPaginadas().add(ultimaFila);
+//        }
         return resultados;
     }
 
@@ -314,10 +321,14 @@ public class SimulacionPractica extends Simulacion {
         equipoFinalizacion.setHora_salida(this.reloj);
         servidorActual.acumTiempoPermanenciaEquipoAcum(
                 equipoFinalizacion.getHora_salida() - equipoFinalizacion.getHora_llegada());
+
+        Llegada llegada = new Llegada();
+        llegada.setHoraProximaLlegada(this.filaAnterior.llegada.getHoraProximaLlegada());
+
         this.filaActual = new FilaVector(
                 Eventos.FinTrabajo + " E"+ equipoFinalizacion.getId_equipo(),
                 this.reloj,
-                new Llegada(),
+                llegada,
                 colasEstadoActual,
                 this.contadorEquipos,
                 horaCambioTrabajoC,
@@ -326,7 +337,6 @@ public class SimulacionPractica extends Simulacion {
                 servidorActual,
                 clonarEquipos()
         );
-
     }
 
     private void eventoReanudacionTrabajo() {
@@ -355,16 +365,19 @@ public class SimulacionPractica extends Simulacion {
             servidorActual.setHoraInicioOcupacion(this.reloj);
             colasEstadoActual.restarTrabajoCSegundoPlano();
         }
-
+        FinTrabajo finTrabajo = new FinTrabajo();
+        finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
+        Llegada llegada = new Llegada();
+        llegada.setHoraProximaLlegada(this.filaAnterior.llegada.getHoraProximaLlegada());
         this.filaActual = new FilaVector(
                 Eventos.Reanudacion + " E"+ equipoReanudacion.getId_equipo(),
                 this.reloj,
-                new Llegada(),
+                llegada,
                 colasEstadoActual,
                 this.contadorEquipos,
                 0,
                 0,
-                new FinTrabajo(),
+                finTrabajo,
                 servidorActual,
                 clonarEquipos()
         );
@@ -467,11 +480,16 @@ public class SimulacionPractica extends Simulacion {
             servidorActual.setEstado(EstadoServidor.Libre);
             servidorActual.setHoraFinOcupacion(this.reloj);
             servidorActual.acumularTiempoOcupacion();
+            finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
         }
+
+        Llegada llegada = new Llegada();
+        llegada.setHoraProximaLlegada(this.filaAnterior.llegada.getHoraProximaLlegada());
+
         this.filaActual = new FilaVector(
                 Eventos.Cambio + " E"+ equipoCambioTrabajo.getId_equipo(),
                 this.reloj,
-                new Llegada(),
+                llegada,
                 colasEstadoActual,
                 this.contadorEquipos,
                 horaCambioTrabajoC,
@@ -517,6 +535,7 @@ public class SimulacionPractica extends Simulacion {
 
         if (servidorActual.getEstado().equals(EstadoServidor.Ocupado)) {
             if (colasEstadoActual.getLugaresLibres() > 0) {
+                finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
                 this.contadorEquipos++;
                 llegadaEquipo.calcularTipoTrabajo(trabajos, probabilidadesTipoTrabajo);
                 colasEstadoActual.sumarColaComun();
