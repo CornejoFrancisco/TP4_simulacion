@@ -16,10 +16,6 @@ public class Servidor {
     public double tiempoOcupacionAcum;
     public double tiempoPermanenciaEquipoAcum;
 
-    public void acumularTiempoOcupacion() {
-        this.tiempoOcupacionAcum = this.tiempoOcupacionAcum + this.horaFinOcupacion - this.horaInicioOcupacion;
-    }
-
     public void acumTiempoPermanenciaEquipoAcum(double tiempoPermanenciaEquipoAcum) {
         this.tiempoPermanenciaEquipoAcum = this.tiempoPermanenciaEquipoAcum + tiempoPermanenciaEquipoAcum;
     }

@@ -573,6 +573,7 @@ public class SimulacionPractica extends Simulacion {
                 equipo.setTipo_trabajo(llegadaEquipo.getTrabajo());
                 trabajos_equipos.add(equipo);
             }
+
         } else {
             this.contadorEquipos++;
             servidorActual.setEstado(EstadoServidor.Ocupado);
