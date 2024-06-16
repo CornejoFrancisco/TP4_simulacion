@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class Servidor {
     public EstadoServidor estado;
-    public double horaInicioOcupacion;
-    public double horaFinOcupacion;
     public double tiempoOcupacionAcum;
     public double tiempoPermanenciaEquipoAcum;
 

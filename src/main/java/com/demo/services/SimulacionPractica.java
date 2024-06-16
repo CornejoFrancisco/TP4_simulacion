@@ -155,8 +155,6 @@ public class SimulacionPractica extends Simulacion {
 
         Servidor servidorInicio = new Servidor(EstadoServidor.Libre,
                 0,
-                0,
-                0,
                 0);
 
 
@@ -214,8 +212,6 @@ public class SimulacionPractica extends Simulacion {
             this.vectorDeEstados.add(this.filaActual);
         }
 
-        this.filaActual.servidor.setHoraFinOcupacion(this.reloj);
-        //this.filaActual.servidor.acumularTiempoOcupacion();
 
         ResultadosSimulacion resultados = new ResultadosSimulacion();
         resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
@@ -244,8 +240,6 @@ public class SimulacionPractica extends Simulacion {
 
         Servidor servidorActual = new Servidor(
                 this.filaAnterior.getServidor().getEstado(),
-                this.filaAnterior.getServidor().horaInicioOcupacion,
-                this.filaAnterior.getServidor().horaFinOcupacion,
                 this.filaAnterior.getServidor().tiempoOcupacionAcum,
                 this.filaAnterior.getServidor().tiempoPermanenciaEquipoAcum);
 
@@ -316,8 +310,6 @@ public class SimulacionPractica extends Simulacion {
 
         } else {
             servidorActual.setEstado(EstadoServidor.Libre);
-            servidorActual.setHoraFinOcupacion(this.reloj);
-            //servidorActual.acumularTiempoOcupacion();
         }
 
         equipoFinalizacion.setHora_salida(this.reloj);
@@ -354,8 +346,6 @@ public class SimulacionPractica extends Simulacion {
 
         Servidor servidorActual = new Servidor(
                 this.filaAnterior.getServidor().getEstado(),
-                this.filaAnterior.getServidor().horaInicioOcupacion,
-                this.filaAnterior.getServidor().horaFinOcupacion,
                 this.filaAnterior.getServidor().tiempoOcupacionAcum,
                 this.filaAnterior.getServidor().tiempoPermanenciaEquipoAcum);
 
@@ -374,7 +364,6 @@ public class SimulacionPractica extends Simulacion {
         } else {
             equipoReanudacion.setEquipo_estado(EstadoEquipo.Atendido);
             servidorActual.setEstado(EstadoServidor.Ocupado);
-            servidorActual.setHoraInicioOcupacion(this.reloj);
             colasEstadoActual.restarTrabajoCSegundoPlano();
         }
         FinTrabajo finTrabajo = new FinTrabajo();
@@ -419,8 +408,6 @@ public class SimulacionPractica extends Simulacion {
 
         Servidor servidorActual = new Servidor(
                 this.filaAnterior.getServidor().getEstado(),
-                this.filaAnterior.getServidor().horaInicioOcupacion,
-                this.filaAnterior.getServidor().horaFinOcupacion,
                 this.filaAnterior.getServidor().tiempoOcupacionAcum,
                 this.filaAnterior.getServidor().tiempoPermanenciaEquipoAcum
         );
@@ -500,8 +487,6 @@ public class SimulacionPractica extends Simulacion {
             }
         } else {
             servidorActual.setEstado(EstadoServidor.Libre);
-            servidorActual.setHoraFinOcupacion(this.reloj);
-            //servidorActual.acumularTiempoOcupacion();
             finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
         }
 
@@ -536,8 +521,6 @@ public class SimulacionPractica extends Simulacion {
         // Copia el estado del servidor de la fila anterior
         Servidor servidorActual = new Servidor(
                 this.filaAnterior.getServidor().getEstado(),
-                this.filaAnterior.getServidor().getHoraInicioOcupacion(),
-                0,
                 this.filaAnterior.getServidor().getTiempoOcupacionAcum(),
                 this.filaAnterior.getServidor().getTiempoPermanenciaEquipoAcum());
 
@@ -577,7 +560,6 @@ public class SimulacionPractica extends Simulacion {
         } else {
             this.contadorEquipos++;
             servidorActual.setEstado(EstadoServidor.Ocupado);
-            servidorActual.setHoraInicioOcupacion(reloj);
 
             llegadaEquipo.calcularTipoTrabajo(trabajos, probabilidadesTipoTrabajo);
 
