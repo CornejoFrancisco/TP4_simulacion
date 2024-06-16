@@ -500,7 +500,6 @@ public class SimulacionPractica extends Simulacion {
         );
     }
 
-
     private void eventoLlegada() {
         // Copia el estado de las colas de la fila anterior
         ColaVector colasEstadoActual = new ColaVector(
