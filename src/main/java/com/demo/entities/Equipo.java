@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Equipo {
-    public int id_equipo;
-    public EstadoEquipo equipo_estado;
-    public Trabajo tipo_trabajo;
-    public double hora_llegada;
-    public double hora_Inicio_atencion;
-    public double horaFinAtencionEstimada;
-    public double hora_salida;
+    private int id_equipo;
+    private EstadoEquipo equipo_estado;
+    private Trabajo tipo_trabajo;
+    private double hora_llegada;
+    private double hora_Inicio_atencion;
+    private double horaFinAtencionEstimada;
+    private double hora_salida;
+    private boolean yaTermino;
 }

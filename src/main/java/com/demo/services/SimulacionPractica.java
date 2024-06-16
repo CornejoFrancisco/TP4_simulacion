@@ -402,7 +402,7 @@ public class SimulacionPractica extends Simulacion {
         this.proximosEventos.add(
                 new Evento(
                         Eventos.Reanudacion,
-                        this.proximoEvento.getEquipo().horaFinAtencionEstimada - this.tiempoAntesFinEquipoC,
+                        this.proximoEvento.getEquipo().getHoraFinAtencionEstimada() - this.tiempoAntesFinEquipoC,
                         this.proximoEvento.getEquipo()
                 )
         );
@@ -586,7 +586,7 @@ public class SimulacionPractica extends Simulacion {
     private ArrayList<Equipo> clonarEquipos() {
         ArrayList<Equipo> equipos = new ArrayList<>();
         for (Equipo equipo : this.trabajos_equipos) {
-            if (equipo.getEquipo_estado() != EstadoEquipo.Finalizado) {
+            if (!equipo.isYaTermino()){
                 Equipo equipoClon = new Equipo();
                 equipoClon.setId_equipo(equipo.getId_equipo());
                 equipoClon.setEquipo_estado(equipo.getEquipo_estado());
@@ -597,7 +597,9 @@ public class SimulacionPractica extends Simulacion {
                 equipoClon.setHora_salida(equipo.getHora_salida());
                 equipos.add(equipoClon);
             }
-
+            if (equipo.getEquipo_estado() == EstadoEquipo.Finalizado) {
+                equipo.setYaTermino(true);
+            }
         }
         return equipos;
     }
