@@ -7,9 +7,6 @@ import com.demo.entities.Estados.Eventos;
 import com.demo.entities.Estados.Trabajo;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,8 +16,19 @@ import java.util.*;
 @AllArgsConstructor
 public class SimulacionPractica extends Simulacion {
 
-    private ArrayList<Trabajo> trabajos = new ArrayList<>(Arrays.asList(Trabajo.values()));
-    private Trabajo[] trabajosArray = trabajos.toArray(new Trabajo[0]);
+    //Desplegar para ver informacion de los atributos de abajo
+    /**
+     * PARAMETROS DE LA SIMULACION
+     * - tiempoSimulacion: Tiempo de simulacion en horas.
+     * - probabilidadesTipoTrabajo: Probabilidades de los diferentes tipos de trabajo (A,B,C,D).
+     * - tiemposMediaTrabajo: Tiempos medios de ejecucion de los diferentes tipos de trabajo (A,B,C,D).
+     * - limite_inferiorUniforme: Limite inferior de la distribucion uniforme del tiempo de trabajo.
+     * - limite_superiorUniforme: Limite superior de la distribucion uniforme del tiempo de trabajo.
+     * - tiempoDesdeInicioEquipoC: Tiempo desde que inicia el trabajo C hasta que puede ser dejado solo.
+     * - tiempoAntesFinEquipoC: Tiempo antes de terminar el trabajo C en el que hay que retomarlo.
+     * - tiempoInicioResultado: Tiempo desde el que empieza a guardar filas del vector para devolver.
+     * - cantidadItercaciones: Cantidad de iteraciones que devuelve a partir del tiempoInicioResultado.
+     */
     private double tiempoSimulacion;
     private ArrayList<Double> probabilidadesTipoTrabajo;
     private ArrayList<Double> tiemposMediaTrabajo;
@@ -31,12 +39,39 @@ public class SimulacionPractica extends Simulacion {
     private double tiempoInicioResultado;
     private int cantidadItercaciones;
 
+    //Desplegar para ver informacion de los atributos de abajo
+    /**
+     * - tipoTrabajos: Tipos de trabajos que se pueden realizar.
+     * - vectorDeEstados: Vector de estados de la simulacion, almacena una fila por iteracion a partir
+     *      del "tiempoInicioResultado" y hasta alcanzar un tamaño de "cantiadaIteraciones".
+     * - equipos: Lista de equipos que ingresaron al sistema, son eliminados una vez que salen.
+     * - colaComun: Cola de equipos que ingresaron al sistema y esperan ser atendidos por primera vez.
+     * - colaTrabajosC: Cola de equipos a los que se le realiza un trabajo C, fueron atendidos, dejados en segundo plano,
+     *      y al momento de retomar su atencion el servidor estaba ocupado, por lo tanto esperan en esta cola a que termine
+     *      lo que este haciendo y pueda finalizar su atencion.
+     * - proximosEventos: Lista de los proximos eventos a ocurrir en la simulacion, en cada iteracion se extrae el que
+     *      ocurre y se añade el proximo si es que hay.
+     * - filaActual: Es la fila que se crea al finalizar la ejecucion del evento correspondiente a la iteracion actual,
+     *      se añade al vector de estados al finalizar el evento actual.
+     * - filaAnterior: Al inicio de la iteracion, el elemento que está en "filaActual", corresponde a la fila generada
+     *      en la iteracion anterior, por lo tanto pasa a esta variable y sirve para mantener en la proxima fila a generar
+     *      los valores que deban mantenerse de la fila de la interacion anterior.
+     * - contadorIteraciones: Contador de las iteraciones que se han realizado en la simulacion, sirve para poner
+     *      finalizar la simulacion si se alcanzan las 100000 iteraciones.
+     * - contadorIteracionesResultado: Contador de las iteraciones que sirve para determinar cuantas filas
+     *      del vector de estados guardar en el objeto a devolver a partir del tiempoInicioResultado.
+     * - reloj: Tiempo actual de la simulacion.
+     * - proximoEvento: Proximo evento a ocurrir en la simulacion, se extrae en cada iteracion del array de
+     *      proximosEventos y los datos del evento (Hora, Equipo involucrado, Tipo de evento).
+     * - contadorEquipos: Contador de los equipos que han ingresado al sistema, sirve para asignar un id a cada equipo y
+     *      llevar un conteo para las estadisticas.
+     * */
+
+    private ArrayList<Trabajo> tipoTrabajos = new ArrayList<>(Arrays.asList(Trabajo.values()));
     private ArrayList<FilaVector> vectorDeEstados = new ArrayList<>();
-    private ArrayList<Equipo> trabajos_equipos = new ArrayList<>();
+    private ArrayList<Equipo> equipos = new ArrayList<>();
     private ArrayList<Equipo> colaComun = new ArrayList<>();
-    private ArrayList<Equipo> colaTrabajoC = new ArrayList<>();
-    private ArrayList<Equipo> trabajoCSegundoPlano = new ArrayList<>();
-    private ArrayList<FinTrabajo> colaTrabajoFinalizado = new ArrayList<>();
+    private ArrayList<Equipo> colaTrabajosC = new ArrayList<>();
     private ArrayList<Evento> proximosEventos = new ArrayList<>();
     private FilaVector filaActual = null;
     private FilaVector filaAnterior = null;
@@ -49,9 +84,12 @@ public class SimulacionPractica extends Simulacion {
 
 
     private void buscarProximoEvento() {
+        //*
+        // Buscar el proximo evento a ocurrir en la simulacion, se recorre la lista de proximos eventos y se
+        // selecciona el que ocurra primero, es decir el que tenga la menor diferencia con el reloj actual.
+        // */.
         double tiempoProximoEvento = 0;
         Evento proximoEvento = null;
-
         for (int i = 0; i <= proximosEventos.size() - 1; i++) {
             if (i == 0) {
                 tiempoProximoEvento = proximosEventos.get(i).getHoraEvento() - reloj;
@@ -108,11 +146,9 @@ public class SimulacionPractica extends Simulacion {
         this.cantidadItercaciones = cantidadItercaciones;
 
         this.vectorDeEstados.clear();
-        this.trabajos_equipos.clear();
+        this.equipos.clear();
         this.colaComun.clear();
-        this.colaTrabajoC.clear();
-        this.trabajoCSegundoPlano.clear();
-        this.colaTrabajoFinalizado.clear();
+        this.colaTrabajosC.clear();
         this.proximosEventos.clear();
 
         this.filaActual = null;
@@ -142,8 +178,8 @@ public class SimulacionPractica extends Simulacion {
 
         ColaVector colaVectorInicio = new ColaVector(
                 this.colaComun.size(),
-                this.colaTrabajoC.size(),
-                this.trabajoCSegundoPlano.size(),
+                this.colaTrabajosC.size(),
+                0,
                 9);
 
         int contadorEquipos = this.contadorEquipos;
@@ -253,8 +289,8 @@ public class SimulacionPractica extends Simulacion {
 
         if (colasEstadoActual.getColaTrabajoC() > 0) {
 
-            Equipo equipoEnColaC = this.colaTrabajoC.getFirst();
-            this.colaTrabajoC.remove(equipoEnColaC);
+            Equipo equipoEnColaC = this.colaTrabajosC.getFirst();
+            this.colaTrabajosC.remove(equipoEnColaC);
             equipoEnColaC.setEquipo_estado(EstadoEquipo.Atendido);
             colasEstadoActual.restarColaC();
 
@@ -359,7 +395,7 @@ public class SimulacionPractica extends Simulacion {
         if (servidorActual.getEstado().equals(EstadoServidor.Ocupado)) {
             equipoReanudacion.setEquipo_estado(EstadoEquipo.EncolaC);
             colasEstadoActual.sumarColaTrabajoC();
-            this.colaTrabajoC.add(equipoReanudacion);
+            this.colaTrabajosC.add(equipoReanudacion);
             this.anularFinTrabajoC(equipoReanudacion.getId_equipo());
         } else {
             equipoReanudacion.setEquipo_estado(EstadoEquipo.Atendido);
@@ -436,7 +472,7 @@ public class SimulacionPractica extends Simulacion {
         FinTrabajo finTrabajo = new FinTrabajo();
 
         if (colasEstadoActual.getColaTrabajoC() > 0) {
-            Equipo equipoEnColaC = this.colaTrabajoC.getFirst();
+            Equipo equipoEnColaC = this.colaTrabajosC.getFirst();
             equipoEnColaC.setEquipo_estado(EstadoEquipo.Atendido);
             colasEstadoActual.restarColaC();
 
@@ -546,7 +582,7 @@ public class SimulacionPractica extends Simulacion {
             if (colasEstadoActual.getLugaresLibres() > 0) {
                 finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
                 this.contadorEquipos++;
-                llegadaEquipo.calcularTipoTrabajo(trabajos, probabilidadesTipoTrabajo);
+                llegadaEquipo.calcularTipoTrabajo(tipoTrabajos, probabilidadesTipoTrabajo);
                 colasEstadoActual.sumarColaComun();
                 this.colaComun.add(equipo);
 
@@ -554,14 +590,14 @@ public class SimulacionPractica extends Simulacion {
                 equipo.setEquipo_estado(EstadoEquipo.EnCola);
                 equipo.setHora_llegada(reloj);
                 equipo.setTipo_trabajo(llegadaEquipo.getTrabajo());
-                trabajos_equipos.add(equipo);
+                equipos.add(equipo);
             }
 
         } else {
             this.contadorEquipos++;
             servidorActual.setEstado(EstadoServidor.Ocupado);
 
-            llegadaEquipo.calcularTipoTrabajo(trabajos, probabilidadesTipoTrabajo);
+            llegadaEquipo.calcularTipoTrabajo(tipoTrabajos, probabilidadesTipoTrabajo);
 
             finTrabajo.calcularHoraFinTrabajo(
                     llegadaEquipo.getTrabajo(),
@@ -595,7 +631,7 @@ public class SimulacionPractica extends Simulacion {
                 );
                 equipo.setHora_Inicio_atencion(horaCambioTrabajoC);
             }
-            trabajos_equipos.add(equipo);
+            equipos.add(equipo);
         }
 
         Double promedioPermanencia = servidorActual.getTiempoPermanenciaEquipoAcum() / this.contadorEquipos;
@@ -616,7 +652,7 @@ public class SimulacionPractica extends Simulacion {
 
     private ArrayList<Equipo> clonarEquipos() {
         ArrayList<Equipo> equipos = new ArrayList<>();
-        for (Equipo equipo : this.trabajos_equipos) {
+        for (Equipo equipo : this.equipos) {
             if (!equipo.isYaTermino()) {
                 Equipo equipoClon = new Equipo();
                 equipoClon.setId_equipo(equipo.getId_equipo());
