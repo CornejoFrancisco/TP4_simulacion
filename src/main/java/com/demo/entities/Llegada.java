@@ -15,11 +15,11 @@ import java.util.Random;
 
 public class Llegada {
 
-    public double rndLlegada;
-    public double tiempoEntreLlegada;
-    public double horaProximaLlegada;
+    public Double rndLlegada;
+    public Double tiempoEntreLlegada;
+    public Double horaProximaLlegada;
 
-    public double rndTipoTrabajo;
+    public Double rndTipoTrabajo;
     public Trabajo trabajo;
 
 
@@ -30,7 +30,7 @@ public class Llegada {
         return numero_random;
     }
 
-    public void calcularTiempoEntreLlegada(double reloj) {
+    public void generarProximaLlegada(double reloj) {
         double ran = rndLlegada();
         ran = Math.round(ran * 100.0) / 100.0;
         double tiempo_entre_llegada = 0.5 + ran * (1.5 - 0.5);

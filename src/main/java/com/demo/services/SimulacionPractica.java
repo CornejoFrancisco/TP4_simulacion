@@ -84,28 +84,38 @@ public class SimulacionPractica extends Simulacion {
 
 
     private void buscarProximoEvento() {
+
         //*
-        // Buscar el proximo evento a ocurrir en la simulacion, se recorre la lista de proximos eventos y se
-        // selecciona el que ocurra primero, es decir el que tenga la menor diferencia con el reloj actual.
+        // Busca el proximo evento a ocurrir en la simulacion, se recorre la lista de proximos eventos
+        // y se van comparando en base a la diferencia entre la hora de ocurrencia y el reloj actual, por ende se
+        // selecciona el que tenga la menor diferencia entre su hora de ocurrencia y el reloj actual,
+        // es decir el proximo a ocurrir. Luego ese evento se remueve ese evento de la lista y se asigna a la variable
         // */.
-        double tiempoProximoEvento = 0;
+
         Evento proximoEvento = null;
-        for (int i = 0; i <= proximosEventos.size() - 1; i++) {
-            if (i == 0) {
-                tiempoProximoEvento = proximosEventos.get(i).getHoraEvento() - reloj;
-                proximoEvento = proximosEventos.get(i);
-            } else {
-                if (proximosEventos.get(i).getHoraEvento() - reloj < tiempoProximoEvento) {
-                    tiempoProximoEvento = proximosEventos.get(i).getHoraEvento() - reloj;
-                    proximoEvento = proximosEventos.get(i);
-                }
-            }
+        Optional<Evento> proxEvento = proximosEventos.stream()
+                .min(Comparator.comparing(evento ->
+                        evento.getHoraEvento() - this.reloj));
+        if(proxEvento.isPresent()){
+            proximoEvento = proxEvento.get();
+//        for (int i = 0; i <= proximosEventos.size() - 1; i++) {
+//            if (i == 0) {
+//                tiempoProximoEvento = proximosEventos.get(i).getHoraEvento() - reloj;
+//                proximoEvento = proximosEventos.get(i);
+//            } else {
+//                if (proximosEventos.get(i).getHoraEvento() - reloj < tiempoProximoEvento) {
+//                    tiempoProximoEvento = proximosEventos.get(i).getHoraEvento() - reloj;
+//                    proximoEvento = proximosEventos.get(i);
+//                }
+//            }
         }
         this.proximosEventos.remove(proximoEvento);
         this.proximoEvento = proximoEvento;
     }
 
     public FilasPaginadas getFilasPaginadas(Integer page) {
+        // Sirve para extraer del vector de estados las filas que se deben devolver en la vista, en base a la
+        // pagina que se solicita.
         FilasPaginadas filasPaginadas = new FilasPaginadas();
         FilaVector ultimaFila = this.vectorDeEstados.getLast();
         if (this.vectorDeEstados.size() > 200) {
@@ -166,9 +176,9 @@ public class SimulacionPractica extends Simulacion {
         double reloj = this.reloj;
 
         Llegada llegada_primera = new Llegada();
-        llegada_primera.calcularTiempoEntreLlegada(reloj);
-        llegada_primera.setTrabajo(null);
-        llegada_primera.setRndTipoTrabajo(0.0);
+        llegada_primera.generarProximaLlegada(reloj);
+        //llegada_primera.setTrabajo(null);
+        //llegada_primera.setRndTipoTrabajo(0.0);
 
         this.proximosEventos.add(new Evento(
                 Eventos.Llegada,
@@ -184,10 +194,7 @@ public class SimulacionPractica extends Simulacion {
 
         int contadorEquipos = this.contadorEquipos;
 
-        FinTrabajo finTrabajo = new FinTrabajo(0, 0,
-                0,
-                0,
-                0);
+        FinTrabajo finTrabajo = new FinTrabajo();
 
         Servidor servidorInicio = new Servidor(EstadoServidor.Libre,
                 0,
@@ -212,6 +219,7 @@ public class SimulacionPractica extends Simulacion {
             this.vectorDeEstados.add(this.filaActual);
             this.contadorIteracionesResultado++;
         }
+
         this.contadorIteraciones++;
 
         while (this.reloj < this.tiempoSimulacion && this.contadorIteraciones <= 100000) {
@@ -241,7 +249,6 @@ public class SimulacionPractica extends Simulacion {
                 this.vectorDeEstados.add(this.filaActual);
             }
             this.contadorIteraciones++;
-
         }
 
         if (this.vectorDeEstados.getLast() != this.filaActual) {
@@ -294,7 +301,6 @@ public class SimulacionPractica extends Simulacion {
             equipoEnColaC.setEquipo_estado(EstadoEquipo.Atendido);
             colasEstadoActual.restarColaC();
 
-            finTrabajo.setIdEquipoFinTrabajo(equipoEnColaC.getId_equipo());
             finTrabajo.setTiempoAtencion(this.tiempoAntesFinEquipoC);
             finTrabajo.setHoraFinTrabajo(this.reloj + this.tiempoAntesFinEquipoC);
 
@@ -341,7 +347,7 @@ public class SimulacionPractica extends Simulacion {
                                 equipoEnColaComun
                         )
                 );
-                equipoEnColaComun.setHora_Inicio_atencion(horaCambioTrabajoC);
+                equipoEnColaComun.setHoraCambioTrabajoC(horaCambioTrabajoC);
             }
 
         } else {
@@ -349,15 +355,15 @@ public class SimulacionPractica extends Simulacion {
         }
 
         equipoFinalizacion.setHora_salida(this.reloj);
-        Double tiempoPermanencia = equipoFinalizacion.getHora_salida() - equipoFinalizacion.getHora_llegada();
+        double tiempoPermanencia = equipoFinalizacion.getHora_salida() - equipoFinalizacion.getHora_llegada();
         equipoFinalizacion.setEquipo_estado(EstadoEquipo.Finalizado);
         servidorActual.acumTiempoPermanenciaEquipoAcum(tiempoPermanencia);
 
         Llegada llegada = new Llegada();
         llegada.setHoraProximaLlegada(this.filaAnterior.llegada.getHoraProximaLlegada());
 
-        Double promedioPermanencia = servidorActual.getTiempoPermanenciaEquipoAcum() / this.contadorEquipos;
-        Double porcentajeOcupacion = servidorActual.getTiempoOcupacionAcum() / this.reloj * 100;
+        double promedioPermanencia = servidorActual.getTiempoPermanenciaEquipoAcum() / this.contadorEquipos;
+        double porcentajeOcupacion = servidorActual.getTiempoOcupacionAcum() / this.reloj * 100;
 
         this.filaActual = new FilaVector(
                 Eventos.FinTrabajo + " E" + equipoFinalizacion.getId_equipo(),
@@ -389,20 +395,22 @@ public class SimulacionPractica extends Simulacion {
             Double tiempoAAcumular = this.reloj - this.filaAnterior.getReloj();
             servidorActual.acumularIteracionAIteracion(tiempoAAcumular);
         }
-
+        FinTrabajo finTrabajo = new FinTrabajo();
         Equipo equipoReanudacion = this.proximoEvento.getEquipo();
-        equipoReanudacion.setHoraReanudacionTrabajoC(0.00);
+        equipoReanudacion.setHoraReanudacionTrabajoC(null);
         if (servidorActual.getEstado().equals(EstadoServidor.Ocupado)) {
             equipoReanudacion.setEquipo_estado(EstadoEquipo.EncolaC);
+            equipoReanudacion.setHoraFinAtencionEstimada(null);
             colasEstadoActual.sumarColaTrabajoC();
             this.colaTrabajosC.add(equipoReanudacion);
             this.anularFinTrabajoC(equipoReanudacion.getId_equipo());
         } else {
             equipoReanudacion.setEquipo_estado(EstadoEquipo.Atendido);
             servidorActual.setEstado(EstadoServidor.Ocupado);
+            finTrabajo.setHoraFinTrabajo(this.reloj + this.tiempoAntesFinEquipoC);
             colasEstadoActual.restarTrabajoCSegundoPlano();
         }
-        FinTrabajo finTrabajo = new FinTrabajo();
+
         finTrabajo.setHoraFinTrabajo(this.filaAnterior.finTrabajo.getHoraFinTrabajo());
         Llegada llegada = new Llegada();
         llegada.setHoraProximaLlegada(this.filaAnterior.llegada.getHoraProximaLlegada());
@@ -467,7 +475,7 @@ public class SimulacionPractica extends Simulacion {
         Equipo equipoCambioTrabajo = this.proximoEvento.getEquipo();
         Double horaReanudacionTrabajoC =
                 equipoCambioTrabajo.getHoraFinAtencionEstimada() - this.tiempoAntesFinEquipoC;
-        equipoCambioTrabajo.setHora_Inicio_atencion(0.00);
+        equipoCambioTrabajo.setHoraCambioTrabajoC(null);
         equipoCambioTrabajo.setHoraReanudacionTrabajoC(horaReanudacionTrabajoC);
         FinTrabajo finTrabajo = new FinTrabajo();
 
@@ -519,7 +527,7 @@ public class SimulacionPractica extends Simulacion {
                                 equipoEnColaComun
                         )
                 );
-                equipoEnColaComun.setHora_Inicio_atencion(horaCambioTrabajoC);
+                equipoEnColaComun.setHoraCambioTrabajoC(horaCambioTrabajoC);
             }
         } else {
             servidorActual.setEstado(EstadoServidor.Libre);
@@ -566,7 +574,7 @@ public class SimulacionPractica extends Simulacion {
         }
 
         Llegada llegadaEquipo = new Llegada();
-        llegadaEquipo.calcularTiempoEntreLlegada(this.reloj);
+        llegadaEquipo.generarProximaLlegada(this.reloj);
 
         this.proximosEventos.add(
                 new Evento(
@@ -606,8 +614,6 @@ public class SimulacionPractica extends Simulacion {
                     this.limite_inferiorUniforme,
                     this.limite_superiorUniforme);
 
-            finTrabajo.setIdEquipoFinTrabajo(this.contadorEquipos);
-
             equipo.setId_equipo(this.contadorEquipos);
             equipo.setEquipo_estado(EstadoEquipo.Atendido);
             equipo.setTipo_trabajo(llegadaEquipo.getTrabajo());
@@ -622,20 +628,20 @@ public class SimulacionPractica extends Simulacion {
             );
 
             if (llegadaEquipo.getTrabajo().equals(Trabajo.C)) {
-                Double horaCambioTrabajoC = this.reloj + tiempoDesdeInicioEquipoC;
+                double horaCambioTrabajoC = this.reloj + tiempoDesdeInicioEquipoC;
                 proximosEventos.add(
                         new Evento(
                                 Eventos.Cambio,
                                 horaCambioTrabajoC,
                                 equipo)
                 );
-                equipo.setHora_Inicio_atencion(horaCambioTrabajoC);
+                equipo.setHoraCambioTrabajoC(horaCambioTrabajoC);
             }
             equipos.add(equipo);
         }
 
-        Double promedioPermanencia = servidorActual.getTiempoPermanenciaEquipoAcum() / this.contadorEquipos;
-        Double porcentajeOcupacion = servidorActual.getTiempoOcupacionAcum() / this.reloj * 100;
+        double promedioPermanencia = servidorActual.getTiempoPermanenciaEquipoAcum() / this.contadorEquipos;
+        double porcentajeOcupacion = servidorActual.getTiempoOcupacionAcum() / this.reloj * 100;
 
         this.filaActual = new FilaVector(
                 Eventos.Llegada + " E" + equipo.getId_equipo(),
@@ -659,7 +665,7 @@ public class SimulacionPractica extends Simulacion {
                 equipoClon.setEquipo_estado(equipo.getEquipo_estado());
                 equipoClon.setTipo_trabajo(equipo.getTipo_trabajo());
                 equipoClon.setHora_llegada(equipo.getHora_llegada());
-                equipoClon.setHora_Inicio_atencion(equipo.getHora_Inicio_atencion());
+                equipoClon.setHoraCambioTrabajoC(equipo.getHoraCambioTrabajoC());
                 equipoClon.setHoraReanudacionTrabajoC(equipo.getHoraReanudacionTrabajoC());
                 equipoClon.setHoraFinAtencionEstimada(equipo.getHoraFinAtencionEstimada());
                 equipoClon.setHora_salida(equipo.getHora_salida());

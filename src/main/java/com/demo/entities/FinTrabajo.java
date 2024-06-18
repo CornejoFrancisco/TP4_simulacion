@@ -14,19 +14,10 @@ import java.util.Random;
 
 
 public class FinTrabajo {
-
-    private int idEquipoFinTrabajo;
-    public double rndFinTrabajo;
-    public double mediaTiempoAtencion;
-    public double tiempoAtencion;
-    public double horaFinTrabajo;
-
-    private double rndFinTrabajoCalculo() {
-        Random random = new Random();
-        double numero_random1 = random.nextDouble();
-        double numero_random = Math.round(numero_random1 * 100.0) / 100.0;
-        return numero_random;
-    }
+    public Double rndFinTrabajo;
+    public Double mediaTiempoAtencion;
+    public Double tiempoAtencion;
+    public Double horaFinTrabajo;
 
 
     private Double generateRandom() {
