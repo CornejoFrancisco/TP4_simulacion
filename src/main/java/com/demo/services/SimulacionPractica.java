@@ -143,7 +143,11 @@ public class SimulacionPractica extends Simulacion {
                                      double tiempoDesdeInicioEquipoC,
                                      double tiempoAntesFinEquipoC,
                                      double tiempoInicioResultado,
-                                     int cantidadItercaciones) {
+                                     int cantidadItercaciones,
+                                     double Auniforme,
+                                     double Buniforme,
+                                     double numero_ingresado,
+                                     double numero_ingresado_elevado) {
 
         this.tiempoSimulacion = tiempo_simulacion;
         this.probabilidadesTipoTrabajo = probabilidadesTipoTrabajo;

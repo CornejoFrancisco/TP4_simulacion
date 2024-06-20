@@ -39,6 +39,12 @@ public class Controller {
         double cantTimeSim = simulacionRequest.getCantTimeSim();
         double initTimeView = simulacionRequest.getInitTimeView();
         int cantSimIterations = simulacionRequest.getCantSimIterations();
+        double Auniforme = simulacionRequest.getAUniforme();
+        double Buniforme = simulacionRequest.getBUniforme();
+        double numero_ingresado = simulacionRequest.getNumero_ingresado();
+        double numero_ingresado_elevado = simulacionRequest.getNumero_ingresado_elevado();
+
+
 
         // Crea un array con las probabilidades
         ArrayList<Double> probabilidadesOcurrencia = new ArrayList<>(Arrays.asList(probTA, probTB, probTC, probTD));
@@ -56,7 +62,11 @@ public class Controller {
                 timeInitTC, // Tiempo desde que inicia el trabajo C hasta que queda solo
                 timeEndTC, // Tiempo antes de terminar el trabajo C en el que hay que retomarlo
                 initTimeView, // Tiempo desde el que empieza a guardar filas del vector para devolver
-                cantSimIterations // Cantidad de iteraciones que devuelve
+                cantSimIterations,// Cantidad de iteraciones que devuelve
+                Auniforme,
+                Buniforme,
+                numero_ingresado,
+                numero_ingresado_elevado
         );
         return ResponseEntity.ok(values);
     }

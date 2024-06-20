@@ -25,4 +25,9 @@ public class Dto_request {
     public Integer cantTimeSim;
     public Integer initTimeView;
     public Integer cantSimIterations;
+
+    public Integer AUniforme;
+    public Integer BUniforme;
+    public double numero_ingresado;
+    public double numero_ingresado_elevado;
 }
