@@ -283,7 +283,10 @@ public class SimulacionPractica extends Simulacion {
 
             if (equipoEnColaComun.getTipo_trabajo().equals(Trabajo.C)) {
                 equipoCRK =
-                        this.calculadoraRK.calculo_rungeKutta(0.1, 0.09, 20.0, 100.0, equipoEnColaComun.getId_equipo());
+                        this.calculadoraRK.calculo_rungeKutta(  this.nSuma,
+                                this.nExpo,
+                                this.limInfUnifTC,
+                                this.limSupUnifTC, equipoEnColaComun.getId_equipo());
                 double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
@@ -483,7 +486,10 @@ public class SimulacionPractica extends Simulacion {
 
             if (equipoEnColaComunAAtender.getTipo_trabajo().equals(Trabajo.C)) {
                 equipoCRK =
-                        this.calculadoraRK.calculo_rungeKutta(0.1, 0.09, 20.0, 100.0, equipoEnColaComunAAtender.getId_equipo());
+                        this.calculadoraRK.calculo_rungeKutta(  this.nSuma,
+                                this.nExpo,
+                                this.limInfUnifTC,
+                                this.limSupUnifTC, equipoEnColaComunAAtender.getId_equipo());
                 double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
