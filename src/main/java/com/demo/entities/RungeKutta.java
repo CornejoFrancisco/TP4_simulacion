@@ -13,7 +13,7 @@ public class RungeKutta {
         Random random = new Random();
         double rnd = random.nextDouble();
         double t = 0;
-        double corte = A + rnd * (B - A);
+        double corte = Math.round(A + rnd * (B - A));
 
         double h = 0.1;
         double k1, k2, k3, k4 ;
