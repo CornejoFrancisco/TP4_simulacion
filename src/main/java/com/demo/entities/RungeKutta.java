@@ -36,6 +36,6 @@ public class RungeKutta {
             c = c + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4);
             t = t + h;
         }
-        return new EquipoCRK(idEquipo, rnd, c, t, t/60);
+        return new EquipoCRK(idEquipo, rnd, corte, t, t/60);
     }
 }
