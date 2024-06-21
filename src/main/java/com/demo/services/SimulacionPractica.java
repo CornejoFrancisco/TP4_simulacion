@@ -16,56 +16,18 @@ import java.util.*;
 @AllArgsConstructor
 public class SimulacionPractica extends Simulacion {
 
-    //Desplegar para ver informacion de los atributos de abajo
-    /**
-     * PARAMETROS DE LA SIMULACION
-     * - tiempoSimulacion: Tiempo de simulacion en horas.
-     * - probabilidadesTipoTrabajo: Probabilidades de los diferentes tipos de trabajo (A,B,C,D).
-     * - tiemposMediaTrabajo: Tiempos medios de ejecucion de los diferentes tipos de trabajo (A,B,C,D).
-     * - limite_inferiorUniforme: Limite inferior de la distribucion uniforme del tiempo de trabajo.
-     * - limite_superiorUniforme: Limite superior de la distribucion uniforme del tiempo de trabajo.
-     * - tiempoDesdeInicioEquipoC: Tiempo desde que inicia el trabajo C hasta que puede ser dejado solo.
-     * - tiempoAntesFinEquipoC: Tiempo antes de terminar el trabajo C en el que hay que retomarlo.
-     * - tiempoInicioResultado: Tiempo desde el que empieza a guardar filas del vector para devolver.
-     * - cantidadItercaciones: Cantidad de iteraciones que devuelve a partir del tiempoInicioResultado.
-     */
     private double tiempoSimulacion;
     private ArrayList<Double> probabilidadesTipoTrabajo;
     private ArrayList<Double> tiemposMediaTrabajo;
     private double limite_inferiorUniforme;
     private double limite_superiorUniforme;
-    private double tiempoDesdeInicioEquipoC;
+    private double limInfUnifTC;
+    private double limSupUnifTC;
+    private double nSuma;
+    private double nExpo;
     private double tiempoAntesFinEquipoC;
     private double tiempoInicioResultado;
     private int cantidadItercaciones;
-
-    //Desplegar para ver informacion de los atributos de abajo
-    /**
-     * - tipoTrabajos: Tipos de trabajos que se pueden realizar.
-     * - vectorDeEstados: Vector de estados de la simulacion, almacena una fila por iteracion a partir
-     * del "tiempoInicioResultado" y hasta alcanzar un tamaño de "cantiadaIteraciones".
-     * - equipos: Lista de equipos que ingresaron al sistema, son eliminados una vez que salen.
-     * - colaComun: Cola de equipos que ingresaron al sistema y esperan ser atendidos por primera vez.
-     * - colaTrabajosC: Cola de equipos a los que se le realiza un trabajo C, fueron atendidos, dejados en segundo plano,
-     * y al momento de retomar su atencion el servidor estaba ocupado, por lo tanto esperan en esta cola a que termine
-     * lo que este haciendo y pueda finalizar su atencion.
-     * - proximosEventos: Lista de los proximos eventos a ocurrir en la simulacion, en cada iteracion se extrae el que
-     * ocurre y se añade el proximo si es que hay.
-     * - filaActual: Es la fila que se crea al finalizar la ejecucion del evento correspondiente a la iteracion actual,
-     * se añade al vector de estados al finalizar el evento actual.
-     * - filaAnterior: Al inicio de la iteracion, el elemento que está en "filaActual", corresponde a la fila generada
-     * en la iteracion anterior, por lo tanto pasa a esta variable y sirve para mantener en la proxima fila a generar
-     * los valores que deban mantenerse de la fila de la interacion anterior.
-     * - contadorIteraciones: Contador de las iteraciones que se han realizado en la simulacion, sirve para poner
-     * finalizar la simulacion si se alcanzan las 100000 iteraciones.
-     * - contadorIteracionesResultado: Contador de las iteraciones que sirve para determinar cuantas filas
-     * del vector de estados guardar en el objeto a devolver a partir del tiempoInicioResultado.
-     * - reloj: Tiempo actual de la simulacion.
-     * - proximoEvento: Proximo evento a ocurrir en la simulacion, se extrae en cada iteracion del array de
-     * proximosEventos y los datos del evento (Hora, Equipo involucrado, Tipo de evento).
-     * - contadorEquipos: Contador de los equipos que han ingresado al sistema, sirve para asignar un id a cada equipo y
-     * llevar un conteo para las estadisticas.
-     */
 
     private ArrayList<Trabajo> tipoTrabajos = new ArrayList<>(Arrays.asList(Trabajo.values()));
     private ArrayList<FilaVector> vectorDeEstados = new ArrayList<>();
@@ -78,6 +40,8 @@ public class SimulacionPractica extends Simulacion {
     private FilaVector filaAnterior = null;
     private int contadorIteraciones = 0;
     private int contadorIteracionesResultado = 1;
+    private ArrayList<EquipoCRK> datosEquiposRK = new ArrayList<>();
+    private RungeKutta calculadoraRK = new RungeKutta();
 
     private double reloj = 0;
     private Evento proximoEvento = null;
@@ -122,7 +86,10 @@ public class SimulacionPractica extends Simulacion {
                                      ArrayList<Double> tiemposMediaTrabajo,
                                      double limite_inferiorUniforme,
                                      double limite_superiorUniforme,
-                                     double tiempoDesdeInicioEquipoC,
+                                     double limInfUnifTC,
+                                     double limSupUnifTC,
+                                     double nSuma,
+                                     double nExpo,
                                      double tiempoAntesFinEquipoC,
                                      double tiempoInicioResultado,
                                      int cantidadItercaciones) {
@@ -132,7 +99,10 @@ public class SimulacionPractica extends Simulacion {
         this.tiemposMediaTrabajo = tiemposMediaTrabajo;
         this.limite_inferiorUniforme = limite_inferiorUniforme / 60;
         this.limite_superiorUniforme = limite_superiorUniforme / 60;
-        this.tiempoDesdeInicioEquipoC = tiempoDesdeInicioEquipoC / 60;
+        this.limInfUnifTC = limInfUnifTC;
+        this.limSupUnifTC = limSupUnifTC;
+        this.nSuma = nSuma;
+        this.nExpo = nExpo;
         this.tiempoAntesFinEquipoC = tiempoAntesFinEquipoC / 60;
         this.tiempoInicioResultado = tiempoInicioResultado;
         this.cantidadItercaciones = cantidadItercaciones;
@@ -143,6 +113,7 @@ public class SimulacionPractica extends Simulacion {
         this.colaTrabajosC.clear();
         this.equipos2doPlano.clear();
         this.proximosEventos.clear();
+        this.datosEquiposRK.clear();
 
         this.filaActual = null;
         this.filaAnterior = null;
@@ -187,6 +158,7 @@ public class SimulacionPractica extends Simulacion {
                 contadorEquipos,
                 0,
                 0,
+                null,
                 finTrabajo,
                 servidorInicio,
                 clonarEquipos());
@@ -234,6 +206,7 @@ public class SimulacionPractica extends Simulacion {
         resultados.calcularPorcentajeOcupacion(this.reloj, this.filaActual.servidor.getTiempoOcupacionAcum());
         resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
         resultados.setCantidadFilas(this.vectorDeEstados.size());
+        resultados.setDatosEquiposRK(this.datosEquiposRK);
 
         if (this.vectorDeEstados.size() > 200) {
             resultados.setFilasPaginadas(this.vectorDeEstados.subList(0, 200));
@@ -268,6 +241,7 @@ public class SimulacionPractica extends Simulacion {
 
         Equipo equipoFinalizacion = this.proximoEvento.getEquipo();
         FinTrabajo finTrabajo = new FinTrabajo();
+        EquipoCRK equipoCRK = null;
 
         if (colasEstadoActual.getColaTrabajoC() > 0) {
             Equipo equipoEnColaCAAtender = this.colaTrabajosC.getFirst();
@@ -308,15 +282,18 @@ public class SimulacionPractica extends Simulacion {
             );
 
             if (equipoEnColaComun.getTipo_trabajo().equals(Trabajo.C)) {
-                Double horaCambioTrabajoC = this.reloj + tiempoDesdeInicioEquipoC;
+                equipoCRK =
+                        this.calculadoraRK.calculo_rungeKutta(0.1, 0.09, 20.0, 100.0, equipoEnColaComun.getId_equipo());
+                double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
                                 Eventos.Cambio,
-                                this.reloj + this.tiempoDesdeInicioEquipoC,
+                                horaCambioTrabajoC,
                                 equipoEnColaComun
                         )
                 );
                 equipoEnColaComun.setHoraCambioTrabajoC(horaCambioTrabajoC);
+                this.datosEquiposRK.add(equipoCRK);
             }
 
         } else {
@@ -345,6 +322,7 @@ public class SimulacionPractica extends Simulacion {
                 this.contadorEquipos,
                 promedioPermanencia,
                 porcentajeOcupacion,
+                equipoCRK,
                 finTrabajo,
                 servidorActual,
                 clonarEquipos()
@@ -405,6 +383,7 @@ public class SimulacionPractica extends Simulacion {
                 this.contadorEquipos,
                 this.filaAnterior.getPromedioPermanencia(),
                 porcentajeOcupacion,
+                null,
                 finTrabajo,
                 servidorActual,
                 clonarEquipos()
@@ -457,6 +436,7 @@ public class SimulacionPractica extends Simulacion {
                 )
         );
 
+        EquipoCRK equipoCRK = null;
         FinTrabajo finTrabajo = new FinTrabajo();
 
         if (colasEstadoActual.getColaTrabajoC() > 0) {
@@ -502,7 +482,9 @@ public class SimulacionPractica extends Simulacion {
             equipoEnColaComunAAtender.setHoraFinAtencionEstimada(finTrabajo.getHoraFinTrabajo());
 
             if (equipoEnColaComunAAtender.getTipo_trabajo().equals(Trabajo.C)) {
-                double horaCambioTrabajoC = this.reloj + this.tiempoDesdeInicioEquipoC;
+                equipoCRK =
+                        this.calculadoraRK.calculo_rungeKutta(0.1, 0.09, 20.0, 100.0, equipoEnColaComunAAtender.getId_equipo());
+                double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
                                 Eventos.Cambio,
@@ -511,6 +493,7 @@ public class SimulacionPractica extends Simulacion {
                         )
                 );
                 equipoEnColaComunAAtender.setHoraCambioTrabajoC(horaCambioTrabajoC);
+                this.datosEquiposRK.add(equipoCRK);
             }
         } else {
             servidorActual.setEstado(EstadoServidor.Libre);
@@ -532,6 +515,7 @@ public class SimulacionPractica extends Simulacion {
                 this.contadorEquipos,
                 this.filaAnterior.getPromedioPermanencia(),
                 porcentajeOcupacion,
+                equipoCRK,
                 finTrabajo,
                 servidorActual,
                 clonarEquipos()
@@ -565,6 +549,7 @@ public class SimulacionPractica extends Simulacion {
                         null)
         );
 
+        EquipoCRK equipoCRK = null;
         FinTrabajo finTrabajo = new FinTrabajo();
         Equipo equipo = new Equipo();
 
@@ -614,7 +599,14 @@ public class SimulacionPractica extends Simulacion {
             );
 
             if (proximaLLegada.getTrabajo().equals(Trabajo.C)) {
-                double horaCambioTrabajoC = this.reloj + tiempoDesdeInicioEquipoC;
+                equipoCRK =
+                        this.calculadoraRK.calculo_rungeKutta(
+                                this.nSuma,
+                                this.nExpo,
+                                this.limInfUnifTC,
+                                this.limSupUnifTC,
+                                equipo.getId_equipo());
+                double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 proximosEventos.add(
                         new Evento(
                                 Eventos.Cambio,
@@ -622,6 +614,7 @@ public class SimulacionPractica extends Simulacion {
                                 equipo)
                 );
                 equipo.setHoraCambioTrabajoC(horaCambioTrabajoC);
+                this.datosEquiposRK.add(equipoCRK);
             }
             equipos.add(equipo);
         }
@@ -638,6 +631,7 @@ public class SimulacionPractica extends Simulacion {
                 this.contadorEquipos,
                 this.filaAnterior.getPromedioPermanencia(),
                 porcentajeOcupacion,
+                equipoCRK,
                 finTrabajo,
                 servidorActual,
                 clonarEquipos());

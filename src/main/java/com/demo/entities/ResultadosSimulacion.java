@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,6 +15,7 @@ public class ResultadosSimulacion {
     private Double porcentajeOcupacionServidor = null;
     private Integer cantidadFilas = null;
     private List<FilaVector> filasPaginadas = null;
+    private ArrayList<EquipoCRK> datosEquiposRK = null;
 
     public void calcularPromedioPermanencia(Integer cantidadEquipos, Double tiempoPermanenciaEquipoAcum){
         this.promedioPermanencia = tiempoPermanenciaEquipoAcum / cantidadEquipos;

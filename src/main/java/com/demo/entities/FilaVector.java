@@ -20,6 +20,7 @@ public class FilaVector {
     public int contadorEquipo;
     public double PromedioPermanencia;
     public double promedioOcupacion;
+    private EquipoCRK equipoCRK;
     public FinTrabajo finTrabajo;
     public Servidor servidor;
     public ArrayList<Equipo> equipos = new ArrayList<>();
