@@ -16,6 +16,8 @@ public class ResultadosSimulacion {
     private Integer cantidadFilas = null;
     private List<FilaVector> filasPaginadas = null;
     private ArrayList<EquipoCRK> datosEquiposRK = null;
+    private Double nSuma = null;
+    private Double nExpo = null;
 
     public void calcularPromedioPermanencia(Integer cantidadEquipos, Double tiempoPermanenciaEquipoAcum){
         this.promedioPermanencia = tiempoPermanenciaEquipoAcum / cantidadEquipos;

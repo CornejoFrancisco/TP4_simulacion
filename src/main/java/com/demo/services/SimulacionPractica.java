@@ -207,6 +207,8 @@ public class SimulacionPractica extends Simulacion {
         resultados.calcularPromedioPermanencia(this.contadorEquipos, this.filaActual.servidor.getTiempoPermanenciaEquipoAcum());
         resultados.setCantidadFilas(this.vectorDeEstados.size());
         resultados.setDatosEquiposRK(this.datosEquiposRK);
+        resultados.setNExpo(this.nExpo);
+        resultados.setNSuma(this.nSuma);
 
         if (this.vectorDeEstados.size() > 200) {
             resultados.setFilasPaginadas(this.vectorDeEstados.subList(0, 200));
@@ -259,7 +261,6 @@ public class SimulacionPractica extends Simulacion {
                     )
             );
         } else if (colasEstadoActual.getColaComun() > 0) {
-            //colasEstadoActual.restarColaComun();
             Equipo equipoEnColaComun = this.colaComun.getFirst();
             this.colaComun.remove(equipoEnColaComun);
             equipoEnColaComun.setEquipo_estado(EstadoEquipo.Atendido);
@@ -283,10 +284,12 @@ public class SimulacionPractica extends Simulacion {
 
             if (equipoEnColaComun.getTipo_trabajo().equals(Trabajo.C)) {
                 equipoCRK =
-                        this.calculadoraRK.calculo_rungeKutta(  this.nSuma,
+                        this.calculadoraRK.calculo_rungeKutta(
+                                this.nSuma,
                                 this.nExpo,
                                 this.limInfUnifTC,
-                                this.limSupUnifTC, equipoEnColaComun.getId_equipo());
+                                this.limSupUnifTC,
+                                equipoEnColaComun.getId_equipo());
                 double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
@@ -486,10 +489,12 @@ public class SimulacionPractica extends Simulacion {
 
             if (equipoEnColaComunAAtender.getTipo_trabajo().equals(Trabajo.C)) {
                 equipoCRK =
-                        this.calculadoraRK.calculo_rungeKutta(  this.nSuma,
+                        this.calculadoraRK.calculo_rungeKutta(
+                                this.nSuma,
                                 this.nExpo,
                                 this.limInfUnifTC,
-                                this.limSupUnifTC, equipoEnColaComunAAtender.getId_equipo());
+                                this.limSupUnifTC,
+                                equipoEnColaComunAAtender.getId_equipo());
                 double horaCambioTrabajoC = this.reloj + equipoCRK.getValorNEnHoras();
                 this.proximosEventos.add(
                         new Evento(
