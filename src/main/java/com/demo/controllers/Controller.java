@@ -38,7 +38,6 @@ public class Controller {
         double limSupUnifTC = simulacionRequest.getLimSupUnifTC();
         double nSuma = simulacionRequest.getNSuma();
         double nExpo = simulacionRequest.getNExpo();
-        double timeEndTC = simulacionRequest.getTimeEndTC();
         double cantTimeSim = simulacionRequest.getCantTimeSim();
         double initTimeView = simulacionRequest.getInitTimeView();
         int cantSimIterations = simulacionRequest.getCantSimIterations();
@@ -58,7 +57,6 @@ public class Controller {
                 limSupUnifTC,
                 nSuma,
                 nExpo,
-                timeEndTC,
                 initTimeView,
                 cantSimIterations
         );

@@ -23,7 +23,6 @@ public class Dto_request {
     public double limSupUnifTC;
     public double nExpo;
     public double nSuma;
-    public Integer timeEndTC;
     public Integer cantTimeSim;
     public Integer initTimeView;
     public Integer cantSimIterations;

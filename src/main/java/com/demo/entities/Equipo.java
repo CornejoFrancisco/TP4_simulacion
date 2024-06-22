@@ -20,5 +20,6 @@ public class Equipo {
     private Double horaFinAtencionEstimada;
     private Double hora_salida;
     private boolean yaTermino;
+    private Double valorN;
 }
 
