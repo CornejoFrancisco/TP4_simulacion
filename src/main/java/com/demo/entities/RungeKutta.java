@@ -13,15 +13,15 @@ public class RungeKutta {
         Random random = new Random();
         double rnd = random.nextDouble();
         double t = 0;
-        double corte = Math.round(A + rnd * (B - A));
+        double bloques = (int)(A + rnd * ((B + 1) - A));
 
-        if(corte == 0) {
-            return new EquipoCRK(idEquipo, rnd, corte, t, t/60);
+        if(bloques == 0) {
+            return new EquipoCRK(idEquipo, rnd, bloques, t, t/60);
         } else {
             double h = 0.1;
             double k1, k2, k3, k4 ;
             double c = 0;
-            while( c <= corte){
+            while( c <= bloques){
 
                 k1 = h * (0.1 + Math.exp(nExpo * c));
 
@@ -37,7 +37,7 @@ public class RungeKutta {
                 c = c + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4);
                 t = t + h;
             }
-            return new EquipoCRK(idEquipo, rnd, corte, t, t/60);
+            return new EquipoCRK(idEquipo, rnd, bloques, t, t/60);
         }
     }
 }
